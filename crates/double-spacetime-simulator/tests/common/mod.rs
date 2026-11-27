@@ -44,7 +44,7 @@ pub fn try_create_headless_vulkan() -> Option<HeadlessVulkan> {
     let entry = unsafe { Entry::load() }.ok()?;
 
     let app_info = vk::ApplicationInfo::default()
-        .application_name(c"DualSpacetimeSimulatorTests")
+        .application_name(c"DoubleSpacetimeSimulatorTests")
         .application_version(vk::make_api_version(0, 0, 2, 0))
         .api_version(vk::API_VERSION_1_2);
 

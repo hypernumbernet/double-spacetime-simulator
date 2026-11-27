@@ -1,5 +1,5 @@
-use dual_spacetime_simulator::object_input::{ObjectInput, ObjectInputType};
-use dual_spacetime_simulator::pipeline::build_add_center_marker;
+use double_spacetime_simulator::object_input::{ObjectInput, ObjectInputType};
+use double_spacetime_simulator::pipeline::build_add_center_marker;
 use glam::DVec3;
 
 const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];

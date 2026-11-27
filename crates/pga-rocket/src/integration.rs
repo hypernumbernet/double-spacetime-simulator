@@ -1,4 +1,4 @@
-//! egui + Vulkan integration (mirrors dual-spacetime-simulator).
+//! egui + Vulkan integration (mirrors double-spacetime-simulator).
 
 use ash::vk;
 use egui::ClippedPrimitive;

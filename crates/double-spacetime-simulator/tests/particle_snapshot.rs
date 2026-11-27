@@ -1,7 +1,7 @@
-use dual_spacetime_simulator::object_input::ObjectInput;
-use dual_spacetime_simulator::particle_snapshot::ParticleSnapshot;
-use dual_spacetime_simulator::simulation::SimulationManager;
-use dual_spacetime_simulator::ui_state::SimulationType;
+use double_spacetime_simulator::object_input::ObjectInput;
+use double_spacetime_simulator::particle_snapshot::ParticleSnapshot;
+use double_spacetime_simulator::simulation::SimulationManager;
+use double_spacetime_simulator::ui_state::SimulationType;
 use glam::DVec3;
 
 fn assert_dvec3_approx(a: DVec3, b: DVec3) {
@@ -46,14 +46,14 @@ fn load_from_snapshot_restores_particles() {
 
 #[test]
 fn particle_snapshot_file_roundtrip() {
-    let particles = vec![dual_spacetime_simulator::simulation::Particle::from_kinematics(
+    let particles = vec![double_spacetime_simulator::simulation::Particle::from_kinematics(
         DVec3::new(1.0, 2.0, 3.0),
         DVec3::new(4.0, 5.0, 6.0),
         7.0,
         [0.1, 0.2, 0.3, 1.0],
     )];
 
-    let dir = std::env::temp_dir().join("dual-spacetime-simulator-test");
+    let dir = std::env::temp_dir().join("double-spacetime-simulator-test");
     for (i, sim_type) in SimulationType::ALL.into_iter().enumerate() {
         let snapshot = ParticleSnapshot::new(sim_type, 3e9 + i as f64, particles.clone());
         let path = dir.join(format!("particles_{i}.zip"));
@@ -80,7 +80,7 @@ fn particle_snapshot_loads_legacy_v1_json_without_momentum() {
         }]
     }"#;
 
-    let dir = std::env::temp_dir().join("dual-spacetime-simulator-test");
+    let dir = std::env::temp_dir().join("double-spacetime-simulator-test");
     let path = dir.join("particles_legacy_v1.json");
     std::fs::write(&path, json).unwrap();
     let loaded = ParticleSnapshot::load(&path).unwrap();
@@ -91,7 +91,7 @@ fn particle_snapshot_loads_legacy_v1_json_without_momentum() {
 
 #[test]
 fn particle_snapshot_loads_legacy_json() {
-    let particles = vec![dual_spacetime_simulator::simulation::Particle::from_kinematics(
+    let particles = vec![double_spacetime_simulator::simulation::Particle::from_kinematics(
         DVec3::ZERO,
         DVec3::ZERO,
         1.0,
@@ -100,7 +100,7 @@ fn particle_snapshot_loads_legacy_json() {
     let snapshot = ParticleSnapshot::new(SimulationType::Normal, 1e10, particles);
     let json = serde_json::to_string_pretty(&snapshot).unwrap();
 
-    let dir = std::env::temp_dir().join("dual-spacetime-simulator-test");
+    let dir = std::env::temp_dir().join("double-spacetime-simulator-test");
     let path = dir.join("particles_legacy.json");
     std::fs::write(&path, json).unwrap();
     let loaded = ParticleSnapshot::load(&path).unwrap();

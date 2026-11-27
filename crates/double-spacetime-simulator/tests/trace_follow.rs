@@ -1,9 +1,9 @@
-use dual_spacetime_simulator::trace_follow::{
+use double_spacetime_simulator::trace_follow::{
     compute_trace_follow_distance_limits, compute_trace_particle_screen_fraction,
     MAX_TRACE_PARTICLE_SCREEN_FRACTION, MIN_TRACE_PARTICLE_SCREEN_FRACTION,
     PARTICLE_SIZE_RATIO,
 };
-use dual_spacetime_simulator::ui_state::ParticleDisplayMode;
+use double_spacetime_simulator::ui_state::ParticleDisplayMode;
 
 #[test]
 fn trace_follow_distance_limits_at_unit_scale_glow_linked() {

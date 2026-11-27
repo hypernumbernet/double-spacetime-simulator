@@ -363,7 +363,7 @@ mod tests {
 
     fn temp_data_dir(test_name: &str) -> PathBuf {
         let dir = std::env::temp_dir().join(format!(
-            "dual-spacetime-simulator-solar-system-data-{test_name}-{}",
+            "double-spacetime-simulator-solar-system-data-{test_name}-{}",
             std::process::id()
         ));
         let _ = fs::remove_dir_all(&dir);

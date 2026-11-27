@@ -4,7 +4,7 @@ members = [
     "crates/dst-graph3d",
     "crates/dst-math",
     "crates/dst-expand",
-    "crates/dual-spacetime-simulator",
+    "crates/double-spacetime-simulator",
     "crates/minecraft-clone",
     "crates/vulkanvil",
     "crates/pga-rocket",

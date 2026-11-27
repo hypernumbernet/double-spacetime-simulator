@@ -214,7 +214,7 @@ impl App {
 
         // vulkanvil OrbitCamera: quaternion revolve around target (same as dst-graph3d).
         // Mouse pitch is negated: DeviceEvent::MouseMotion Y is opposite the
-        // cursor-space (y-down) deltas that dual-spacetime / dst-graph3d pass to revolve.
+        // cursor-space (y-down) deltas that double-spacetime-simulator / dst-graph3d pass to revolve.
         let mut dyaw = cam_yaw_rate * dt * 1.2;
         let mut dpitch = cam_pitch_rate * dt * 1.0;
         if self.mouse_dragging {

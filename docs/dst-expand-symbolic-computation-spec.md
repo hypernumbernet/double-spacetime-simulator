@@ -148,7 +148,7 @@ cargo run -p dst-expand -- <subcommand> [args...]
 - 微分・積分
 - 方程式求解（線形・非線形）
 - 一般的な CAS 機能（因数分解、多項式 GCD など）
-- 数値シミュレーションエンジン（dual-spacetime-simulator で行う）
+- 数値シミュレーションエンジン（double-spacetime-simulator で行う）
 
 ## 4. 主要ターゲット機能（優先度順）
 

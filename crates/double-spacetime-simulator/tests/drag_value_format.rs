@@ -1,4 +1,4 @@
-use dual_spacetime_simulator::ui_styles::format_drag_value;
+use double_spacetime_simulator::ui_styles::format_drag_value;
 
 #[test]
 fn long_decimal_is_rounded_to_six_significant_figures() {
@@ -63,7 +63,7 @@ fn mid_range_output_length_stays_bounded() {
 }
 
 mod particle_info_format {
-    use dual_spacetime_simulator::ui_styles::format_particle_info_value;
+    use double_spacetime_simulator::ui_styles::format_particle_info_value;
 
     #[test]
     fn zero_is_zero_padded_to_ten_decimals() {

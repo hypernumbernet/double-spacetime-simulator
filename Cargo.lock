@@ -592,6 +592,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "double-spacetime-simulator"
+version = "0.4.1"
+dependencies = [
+ "ahash",
+ "ash",
+ "ash-window",
+ "bytemuck",
+ "dst-math",
+ "egui",
+ "egui-ash-renderer",
+ "egui-winit",
+ "glam",
+ "gpu-allocator",
+ "num_cpus",
+ "rand",
+ "rand_distr",
+ "raw-window-handle",
+ "rayon",
+ "rfd",
+ "satkit",
+ "serde",
+ "serde_json",
+ "ureq",
+ "vulkanvil",
+ "winit",
+ "zip",
+]
+
+[[package]]
 name = "downcast-rs"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -636,35 +665,6 @@ name = "dst-math"
 version = "0.1.0"
 dependencies = [
  "glam",
-]
-
-[[package]]
-name = "dual-spacetime-simulator"
-version = "0.4.1"
-dependencies = [
- "ahash",
- "ash",
- "ash-window",
- "bytemuck",
- "dst-math",
- "egui",
- "egui-ash-renderer",
- "egui-winit",
- "glam",
- "gpu-allocator",
- "num_cpus",
- "rand",
- "rand_distr",
- "raw-window-handle",
- "rayon",
- "rfd",
- "satkit",
- "serde",
- "serde_json",
- "ureq",
- "vulkanvil",
- "winit",
- "zip",
 ]
 
 [[package]]

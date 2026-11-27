@@ -1,8 +1,8 @@
-use dual_spacetime_simulator::particle_selection_marker::{
+use double_spacetime_simulator::particle_selection_marker::{
     compute_bracket_half_size, BRACKET_RADIUS_RATIO, MIN_HALF_SIZE_PX,
 };
-use dual_spacetime_simulator::pipeline::project_particle_screen_px;
-use dual_spacetime_simulator::simulation::Particle;
+use double_spacetime_simulator::pipeline::project_particle_screen_px;
+use double_spacetime_simulator::simulation::Particle;
 use glam::{DVec3, Mat4, Vec3};
 
 const INITIAL_CAMERA_POSITION: Vec3 = Vec3::new(1.6, -1.6, 3.0);

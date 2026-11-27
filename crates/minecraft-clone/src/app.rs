@@ -83,7 +83,7 @@ impl Default for App {
 
 impl Drop for App {
     /// Waits for all GPU work to finish before tearing down resources, avoiding
-    /// ERROR_DEVICE_LOST (same rationale as the dual-spacetime-simulator crate).
+    /// ERROR_DEVICE_LOST (same rationale as the double-spacetime-simulator crate).
     fn drop(&mut self) {
         if let Some(vb) = &self.vulkan_base {
             let _ = unsafe { vb.device.device_wait_idle() };

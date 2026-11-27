@@ -1,8 +1,8 @@
-# dual-spacetime-simulator
+# double-spacetime-simulator
 
 四次元時空や相対論モチーフの可視化を、粒子シミュレーションと 3D 描画で試すデスクトップアプリです。  
 描画は **Vulkan（ash）**、UI は **egui** を使用しています。ワークスペースには粒子シミュレータ本体
-（`dual-spacetime-simulator`）のほか、PGA ロケット打ち上げ・着陸シミュレータ（`pga-rocket`）なども
+（`double-spacetime-simulator`）のほか、PGA ロケット打ち上げ・着陸シミュレータ（`pga-rocket`）なども
 含まれます。
 
 共有の代数学ライブラリは **`crates/dst-math`** にあり、Cargo workspace の path 依存で各クレートから利用します。
@@ -15,13 +15,13 @@ Cargo workspace 構成です。ルート `Cargo.toml` は workspace 定義（メ
   - 双四元数・ビベクトル・PGA・`Spacetime` / ローレンツ変換を提供
   - 依存は `glam` のみで、Vulkan や UI に依存しない純粋な計算用クレート
   - 主なモジュール: `biquaternion` / `bivector` / `pga` / `spacetime`
-  - 利用元: `dst-expand`、`dual-spacetime-simulator`、`pga-rocket`
+  - 利用元: `dst-expand`、`double-spacetime-simulator`、`pga-rocket`
 - **`dst-expand`**（`crates/dst-expand`・lib + bin）— 代数の記号展開ツール
   - 基底積・サンドイッチ積・PGA を、数値評価せず記号のまま展開する
   - `dst-math` の乗法表をもとに計算する
   - CLI として `mul`（基底積）/ `table`（乗法表）/ `expr`（式の展開）などを提供
   - 主なモジュール: `biquaternion` / `expr` / `pga` / `pga_expr` / `format` / `algebra`
-- **`dual-spacetime-simulator`**（`crates/dual-spacetime-simulator`・lib + bin）— 本アプリ
+- **`double-spacetime-simulator`**（`crates/double-spacetime-simulator`・lib + bin）— 本アプリ
   - Vulkan（ash）+ egui で動くデスクトップ・シミュレータ本体
   - N 体重力シミュレーション（CPU / GPU）を可視化
   - `dst-math`（数学）と `vulkanvil`（Vulkan 基盤）に path 依存
@@ -52,7 +52,7 @@ Cargo workspace 構成です。ルート `Cargo.toml` は workspace 定義（メ
   - ワークスペース内のレンダラが共有する Vulkan の土台
   - インスタンス / デバイス / スワップチェーン構築、バッファ・イメージ確保、シェーダモジュール生成を担う
   - 主なモジュール: `base` / `buffer` / `shader`
-  - 利用元: `dual-spacetime-simulator`、`minecraft-clone`、`pga-rocket`
+  - 利用元: `double-spacetime-simulator`、`minecraft-clone`、`pga-rocket`
 - **`minecraft-clone`**（`crates/minecraft-clone`・bin）— ボクセルデモアプリ
   - `vulkanvil` を土台にした Minecraft 風ボクセルワールドのデモ
   - 共有 Vulkan 基盤 `vulkanvil` の実利用例も兼ねる
@@ -74,10 +74,10 @@ Cargo workspace 構成です。ルート `Cargo.toml` は workspace 定義（メ
 
 ### 実行コマンド
 
-**粒子シミュレータ本体**（`dual-spacetime-simulator`）:
+**粒子シミュレータ本体**（`double-spacetime-simulator`）:
 
 ```powershell
-cargo run -p dual-spacetime-simulator --release
+cargo run -p double-spacetime-simulator --release
 ```
 
 **PGA ロケットシミュレータ**（`pga-rocket`）:
@@ -86,7 +86,7 @@ cargo run -p dual-spacetime-simulator --release
 cargo run -p pga-rocket --release
 ```
 
-`cargo build -p dual-spacetime-simulator --release` や `cargo build -p pga-rocket --release` でも同じ設定（ルート `Cargo.toml` の `[profile.release]`）でビルドできます。
+`cargo build -p double-spacetime-simulator --release` や `cargo build -p pga-rocket --release` でも同じ設定（ルート `Cargo.toml` の `[profile.release]`）でビルドできます。
 
 ### バリデーションレイヤ付き実行（開発時のみ）
 
@@ -94,7 +94,7 @@ Vulkan の使い方に誤りがないかを開発中に検証したい場合は�
 
 ```powershell
 $env:VK_INSTANCE_LAYERS = "VK_LAYER_KHRONOS_validation"
-cargo run -p dual-spacetime-simulator
+cargo run -p double-spacetime-simulator
 ```
 
 バリデーションレイヤは、API の呼び出し順序・同期・リソースのライフタイムなどの違反を検出し、標準エラー出力に警告（`VUID-...`）として報告してくれる開発支援機能です。実機ドライバでは見逃されがちな不正な使い方を、ハングやクラッシュとして表面化する前に発見できます。
@@ -208,7 +208,7 @@ N 体計算をコンピュートシェーダ（`particles_compute.comp`）で回
 - `solar_system_data.rs`: `ureq` でリモートデータを取得し、失敗時はフォールバックに切り替える堅牢な取得処理
 - `dst-math` / `dst-expand`: `glam` だけで完結する双四元数・PGA・ローレンツ変換と、その記号展開（前述）
 
-## シミュレーターの操作方法（dual-spacetime-simulator）
+## シミュレーターの操作方法（double-spacetime-simulator）
 
 ### カメラモード
 

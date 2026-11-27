@@ -1,8 +1,8 @@
-use dual_spacetime_simulator::object_input::{ObjectInput, ObjectInputType};
-use dual_spacetime_simulator::simulation::{
+use double_spacetime_simulator::object_input::{ObjectInput, ObjectInputType};
+use double_spacetime_simulator::simulation::{
     Particle, SimulationManager, SimulationNormal, SimulationState,
 };
-use dual_spacetime_simulator::ui_state::SimulationType as UiSimType;
+use double_spacetime_simulator::ui_state::SimulationType as UiSimType;
 use glam::DVec3;
 use std::sync::{Arc, RwLock};
 
@@ -129,8 +129,8 @@ fn append_particles_lorentz_mode() {
     let scale = 1e10;
     let mgr = SimulationManager {
         state: Arc::new(RwLock::new(
-            dual_spacetime_simulator::simulation::SimulationState::LorentzTransformation(
-                dual_spacetime_simulator::simulation::SimulationLorentzTransformation {
+            double_spacetime_simulator::simulation::SimulationState::LorentzTransformation(
+                double_spacetime_simulator::simulation::SimulationLorentzTransformation {
                     particles: vec![],
                     scale,
                 },

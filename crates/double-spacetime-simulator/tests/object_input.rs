@@ -1,4 +1,4 @@
-use dual_spacetime_simulator::object_input::{
+use double_spacetime_simulator::object_input::{
     MIN_WORLD_SCALE, ObjectInput, ObjectInputType, ParticleBasicColor, SATELLITE_ORBIT_SCALE,
     SOLAR_SYSTEM_SCALE, clamp_world_scale,
 };
@@ -263,7 +263,7 @@ fn get_scale_clamps_negative_input() {
 
 #[test]
 fn spiral_disk_initial_speed_scales_with_enclosed_mass() {
-    use dual_spacetime_simulator::simulation::G;
+    use double_spacetime_simulator::simulation::G;
 
     let scale = ObjectInputType::SpiralDisk.default_base_scale();
     let input = ObjectInputType::SpiralDisk.to_object_input(scale);

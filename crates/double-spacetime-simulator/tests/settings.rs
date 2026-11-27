@@ -1,5 +1,5 @@
-use dual_spacetime_simulator::settings::AppSettings;
-use dual_spacetime_simulator::ui_state::ParticleDisplayMode;
+use double_spacetime_simulator::settings::AppSettings;
+use double_spacetime_simulator::ui_state::ParticleDisplayMode;
 
 #[test]
 fn app_settings_json_roundtrip() {

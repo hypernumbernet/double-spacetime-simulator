@@ -1,6 +1,6 @@
-use dual_spacetime_simulator::gpu_simulation::GpuParticle;
-use dual_spacetime_simulator::simulation::Particle;
-use dual_spacetime_simulator::ui_state::SimulationType;
+use double_spacetime_simulator::gpu_simulation::GpuParticle;
+use double_spacetime_simulator::simulation::Particle;
+use double_spacetime_simulator::ui_state::SimulationType;
 use glam::{DQuat, DVec3};
 
 #[test]
@@ -27,7 +27,7 @@ fn gpu_particle_roundtrip_preserves_values() {
 #[test]
 fn gpu_particle_speed_of_light_limit_stores_momentum_in_velocity_slot() {
     let scale = 1e10;
-    let particle = dual_spacetime_simulator::simulation::SimulationManager::convert_to_momentum(
+    let particle = double_spacetime_simulator::simulation::SimulationManager::convert_to_momentum(
         vec![Particle::from_kinematics(
             DVec3::ZERO,
             DVec3::new(0.01, 0.005, -0.002),

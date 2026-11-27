@@ -14,7 +14,7 @@
 |----------|------|------|
 | `dst-math` | `crates/dst-math` | 双四元数・ビベクトル・`Spacetime` / ローレンツ変換（`glam` のみ依存） |
 | `dst-expand` | `crates/dst-expand` | 基底積・サンドイッチ積の記号展開（`dst-math` の乗法表を利用） |
-| `dual-spacetime-simulator` | `crates/dual-spacetime-simulator` | Vulkan + egui アプリ。`dst-math` を path 依存 |
+| `double-spacetime-simulator` | `crates/double-spacetime-simulator` | Vulkan + egui アプリ。`dst-math` を path 依存 |
 
 シミュレータは `dst_math::...` で数学 API を参照します。数学の単体テストは `cargo test -p dst-math`、展開は `cargo test -p dst-expand` で実行します。
 
@@ -22,7 +22,7 @@
 
 ## 1. 依存関係と外部ライブラリ
 
-`crates/dual-spacetime-simulator/Cargo.toml`（エディション **2024**、パッケージ **0.2.0**）および workspace 共有依存より。
+`crates/double-spacetime-simulator/Cargo.toml`（エディション **2024**、パッケージ **0.2.0**）および workspace 共有依存より。
 
 | 用途 | クレート |
 |------|-----------|
@@ -43,8 +43,8 @@
 
 ## 2. アプリケーションの中心構造
 
-- **`crates/dual-spacetime-simulator/src/main.rs`**：バイナリのエントリ。`dual_spacetime_simulator::run()` のみ呼び出します。
-- **`crates/dual-spacetime-simulator/src/lib.rs`**：`winit` の `ApplicationHandler` を実装した **`App`**、`run()`、`spawn_simulation_worker` を含みます。統合テスト用にモジュールを公開します。
+- **`crates/double-spacetime-simulator/src/main.rs`**：バイナリのエントリ。`double_spacetime_simulator::run()` のみ呼び出します。
+- **`crates/double-spacetime-simulator/src/lib.rs`**：`winit` の `ApplicationHandler` を実装した **`App`**、`run()`、`spawn_simulation_worker` を含みます。統合テスト用にモジュールを公開します。
 
 ### 2.1 `App` が保持する主な状態
 
@@ -68,13 +68,13 @@
 
 ---
 
-## 3. UI 状態（`UiState` / `crates/dual-spacetime-simulator/src/ui_state.rs`）
+## 3. UI 状態（`UiState` / `crates/double-spacetime-simulator/src/ui_state.rs`）
 
 パネルは Simulation / Object Input / Settings の 3 種。`PanelKind` と `PANELS` 定数で管理します。
 
 ---
 
-## 4. シミュレーション（`crates/dual-spacetime-simulator/src/simulation.rs`）
+## 4. シミュレーション（`crates/double-spacetime-simulator/src/simulation.rs`）
 
 - **`SimulationManager`**：`reset` でオブジェクト入力から `SimulationState` を構築し、`advance` で時間発展（`advance_time` のあと `update_velocities`）
 - **`SimulationState`** のバリアント：
@@ -86,7 +86,7 @@
 
 ---
 
-## 5. オブジェクト入力（`crates/dual-spacetime-simulator/src/object_input.rs`）
+## 5. オブジェクト入力（`crates/double-spacetime-simulator/src/object_input.rs`）
 
 乱数球・立方体、渦巻き円盤、太陽系、衛星軌道、楕円軌道などを `ObjectInput` として定義し、`generate_particles` で `Particle` ベクトルを返します。
 
@@ -112,13 +112,13 @@
 
 ---
 
-## 7. レンダリングパイプライン（`crates/dual-spacetime-simulator/src/pipeline.rs`）
+## 7. レンダリングパイプライン（`crates/double-spacetime-simulator/src/pipeline.rs`）
 
 - **軌道カメラ**（`camera.rs` とパイプライン経由）：**左ドラッグ**で軌道回転（revolve）、**右ドラッグ**で視線の向き変更（look around）、**中ドラッグ**で画面中心周りの回転、**ホイール**でズーム。**右ダブルクリック**でターゲットを原点付近へ（`center_target_on_origin`）。`UiState::lock_camera_up` により挙動を制御できます。
 - **座標軸・グリッド**、**粒子（点スプライト風のサイズ定数）**、**補助ライン**、最後に **egui** を同一レンダパス／フレームバッファへ合成
 - シェーダは `build.rs` が `glslc` で **SPIR-V** にコンパイル（`OUT_DIR/shaders/*.spv`）
 
-シェーダ一覧（ソースは `crates/dual-spacetime-simulator/src/shaders/`）：
+シェーダ一覧（ソースは `crates/double-spacetime-simulator/src/shaders/`）：
 
 - `axes_vertex.vert` / `axes_fragment.frag`
 - `particles_vertex.vert` / `particles_fragment.frag`
@@ -126,7 +126,7 @@
 
 ---
 
-## 8. UI（`crates/dual-spacetime-simulator/src/ui.rs` など）
+## 8. UI（`crates/double-spacetime-simulator/src/ui.rs` など）
 
 `draw_ui` が `UiState` と `AppSettings` を編集します。粒子数、時間刻み、スケール、シミュレーション種別、ウィンドウ・プレゼントモード・カメラ関連の固定設定、および設定保存（`AppSettings::save`）を担当します。
 
@@ -152,8 +152,8 @@
 ### 10.2 実行コマンド
 
 - **数学**: `cargo test -p dst-math`（`crates/dst-math/tests/` および `spacetime` / `biquaternion` 内の `#[cfg(test)]`）
-- **シミュレータ**: `cargo test -p dual-spacetime-simulator`（`crates/dual-spacetime-simulator/tests/`）。例：`simulation`、`object_input`、`camera`、`settings`、`ui_state` など。
-- **Vulkan ヘッドレス系**（`vulkan_base_headless.rs`）: 通常の `cargo test -p dual-spacetime-simulator` に含まれる。Vulkan ローダーと対応 GPU が必要（無い環境では失敗する）。
+- **シミュレータ**: `cargo test -p double-spacetime-simulator`（`crates/double-spacetime-simulator/tests/`）。例：`simulation`、`object_input`、`camera`、`settings`、`ui_state` など。
+- **Vulkan ヘッドレス系**（`vulkan_base_headless.rs`）: 通常の `cargo test -p double-spacetime-simulator` に含まれる。Vulkan ローダーと対応 GPU が必要（無い環境では失敗する）。
 - **ワークスペース全体**: `cargo test --workspace`
 
 ### 10.3 アプリ実行時のみのネットワーク利用（太陽系モード）
@@ -166,6 +166,6 @@ Solar System 配置でリセットすると、`satkit` 用データ（JPL 暦等
 
 ## 11. 補足
 
-- バイナリの `main` は `crates/dual-spacetime-simulator/src/main.rs` のみ。アプリ本体の **`App`** と **`run()`** は同クレートの **`src/lib.rs`** にあります。
+- バイナリの `main` は `crates/double-spacetime-simulator/src/main.rs` のみ。アプリ本体の **`App`** と **`run()`** は同クレートの **`src/lib.rs`** にあります。
 - シミュレータのモジュールは `camera`, `object_input`, `integration`, `pipeline`, `settings`, `simulation`, `ui`, `ui_state`, `ui_styles`, `vulkan_base` など（数学は `dst-math` クレート）。
-- シェーダは `crates/dual-spacetime-simulator/src/shaders/*.vert|*.frag` を `build.rs` で `glslc` コンパイルし、`OUT_DIR/shaders/*.spv` を `include_bytes!` で読み込みます。
+- シェーダは `crates/double-spacetime-simulator/src/shaders/*.vert|*.frag` を `build.rs` で `glslc` コンパイルし、`OUT_DIR/shaders/*.spv` を `include_bytes!` で読み込みます。

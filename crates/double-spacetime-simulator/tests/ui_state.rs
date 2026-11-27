@@ -1,7 +1,7 @@
-use dual_spacetime_simulator::object_input::ObjectInputType;
-use dual_spacetime_simulator::settings::AppSettings;
-use dual_spacetime_simulator::simulation::{LIGHT_SPEED, max_subluminal_speed_m_s};
-use dual_spacetime_simulator::ui_state::{
+use double_spacetime_simulator::object_input::ObjectInputType;
+use double_spacetime_simulator::settings::AppSettings;
+use double_spacetime_simulator::simulation::{LIGHT_SPEED, max_subluminal_speed_m_s};
+use double_spacetime_simulator::ui_state::{
     ComputingUnit, DEFAULT_ADD_PARTICLE_COUNT, DEFAULT_MAX_FPS, DEFAULT_SATELLITE_COUNT,
     DEFAULT_SCALE_UI, DEFAULT_SKIP_DRAWING_FRAMES, ParticleDisplayMode, PlacementMode,
     SimulationType, UiState,
@@ -306,8 +306,8 @@ fn reset_repopulates_particles_by_placement_mode() {
 
 #[test]
 fn preset_placement_reset_repopulates_particles() {
-    use dual_spacetime_simulator::object_input::ObjectInput;
-    use dual_spacetime_simulator::simulation::SimulationManager;
+    use double_spacetime_simulator::object_input::ObjectInput;
+    use double_spacetime_simulator::simulation::SimulationManager;
 
     let mut ui = UiState::default();
     ui.placement_mode = PlacementMode::SolarSystem;

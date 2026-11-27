@@ -1,4 +1,4 @@
-//! Library crate for `dual-spacetime-simulator` (binary entry in `main.rs`).
+//! Library crate for `double-spacetime-simulator` (binary entry in `main.rs`).
 //! Exposes modules for integration tests under `tests/`.
 
 pub mod gpu_simulation;
@@ -501,7 +501,7 @@ impl ApplicationHandler for App {
         let vulkan_base = VulkanBase::new(
             &window,
             self.settings.mailbox_present_mode,
-            c"DualSpacetimeSimulator",
+            c"DoubleSpacetimeSimulator",
             vk::make_api_version(0, 0, 2, 0),
         );
         let render_pipeline = ParticleRenderPipeline::new(&vulkan_base);

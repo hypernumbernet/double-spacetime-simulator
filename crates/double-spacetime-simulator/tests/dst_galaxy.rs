@@ -1,6 +1,6 @@
-use dual_spacetime_simulator::object_input::ObjectInput;
-use dual_spacetime_simulator::simulation::{G, LY, Particle, SimulationManager};
-use dual_spacetime_simulator::ui_state::SimulationType as UiSimType;
+use double_spacetime_simulator::object_input::ObjectInput;
+use double_spacetime_simulator::simulation::{G, LY, Particle, SimulationManager};
+use double_spacetime_simulator::ui_state::SimulationType as UiSimType;
 use dst_math::s3_galaxy::{GALAXY_RADIUS_LY, galaxy_radius_sim};
 use glam::DVec3;
 
@@ -46,7 +46,7 @@ fn dst_galaxy_sphere_input_derives_orientations() {
     let ic = galaxy_sphere_input(scale);
     let state = SimulationManager::create_simulation(ic, UiSimType::DstGalaxy, 16, scale);
     let particles = match state {
-        dual_spacetime_simulator::simulation::SimulationState::DstGalaxy(s) => s.particles,
+        double_spacetime_simulator::simulation::SimulationState::DstGalaxy(s) => s.particles,
         _ => panic!("expected DstGalaxy"),
     };
     assert!(!particles.is_empty());

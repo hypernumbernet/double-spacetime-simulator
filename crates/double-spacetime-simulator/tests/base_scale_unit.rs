@@ -1,7 +1,7 @@
-use dual_spacetime_simulator::object_input::{
+use double_spacetime_simulator::object_input::{
     ObjectInputType, SATELLITE_ORBIT_SCALE, SOLAR_SYSTEM_SCALE, clamp_world_scale,
 };
-use dual_spacetime_simulator::ui_state::{BaseScaleUnit, PlacementMode, UiState};
+use double_spacetime_simulator::ui_state::{BaseScaleUnit, PlacementMode, UiState};
 
 #[test]
 fn default_base_scale_unit_is_km() {

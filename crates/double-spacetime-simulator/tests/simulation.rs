@@ -1,9 +1,9 @@
-use dual_spacetime_simulator::object_input::ObjectInput;
-use dual_spacetime_simulator::simulation::{
+use double_spacetime_simulator::object_input::ObjectInput;
+use double_spacetime_simulator::simulation::{
     EPSILON, G, LIGHT_SPEED, Particle, SimulationManager, clamp_scalar_speed_m_s, clamp_velocity_m_s,
     max_subluminal_speed_m_s,
 };
-use dual_spacetime_simulator::ui_state::SimulationType as UiSimType;
+use double_spacetime_simulator::ui_state::SimulationType as UiSimType;
 use dst_math::gravity::{
     gravitational_potential_at, k_scale_from_light_speed, time_dilation,
 };
@@ -61,7 +61,7 @@ fn create_simulation_lorentz_with_superluminal_velocity_std_stays_finite() {
     };
     let state = SimulationManager::create_simulation(ic, UiSimType::LorentzTransformation, 16, 1e10);
     let particles = match state {
-        dual_spacetime_simulator::simulation::SimulationState::LorentzTransformation(s) => {
+        double_spacetime_simulator::simulation::SimulationState::LorentzTransformation(s) => {
             s.particles
         }
         _ => panic!("expected LorentzTransformation"),
@@ -89,7 +89,7 @@ fn elliptical_two_body_energy_approximately_conserved_short_run() {
     let e0 = {
         let g = mgr.state.read().unwrap();
         total_energy(match &*g {
-            dual_spacetime_simulator::simulation::SimulationState::Normal(s) => &s.particles,
+            double_spacetime_simulator::simulation::SimulationState::Normal(s) => &s.particles,
             _ => panic!("expected Normal"),
         })
     };
@@ -99,7 +99,7 @@ fn elliptical_two_body_energy_approximately_conserved_short_run() {
     let e1 = {
         let g = mgr.state.read().unwrap();
         total_energy(match &*g {
-            dual_spacetime_simulator::simulation::SimulationState::Normal(s) => &s.particles,
+            double_spacetime_simulator::simulation::SimulationState::Normal(s) => &s.particles,
             _ => panic!("expected Normal"),
         })
     };
@@ -158,8 +158,8 @@ fn speed_of_light_limit_huge_momentum_stays_finite() {
         scale,
     )[0];
     particle.momentum = DVec3::new(1e30, 0.0, 0.0);
-    let state = dual_spacetime_simulator::simulation::SimulationState::SpeedOfLightLimit(
-        dual_spacetime_simulator::simulation::SimulationSpeedOfLightLimit {
+    let state = double_spacetime_simulator::simulation::SimulationState::SpeedOfLightLimit(
+        double_spacetime_simulator::simulation::SimulationSpeedOfLightLimit {
             particles: vec![particle],
             scale,
         },
@@ -174,7 +174,7 @@ fn speed_of_light_limit_huge_momentum_stays_finite() {
     assert!(p.position.is_finite());
     assert!(p.velocity.is_finite());
     assert!(p.momentum.is_finite());
-    let ls = dual_spacetime_simulator::simulation::LIGHT_SPEED / scale;
+    let ls = double_spacetime_simulator::simulation::LIGHT_SPEED / scale;
     assert!(p.velocity.length() <= ls * 1.0001);
 }
 
@@ -220,8 +220,8 @@ fn remove_particle_at_deletes_index_and_shifts_remaining() {
 fn dst_gravity_manager(particles: Vec<Particle>, scale: f64) -> SimulationManager {
     SimulationManager {
         state: std::sync::Arc::new(std::sync::RwLock::new(
-            dual_spacetime_simulator::simulation::SimulationState::DstGravity(
-                dual_spacetime_simulator::simulation::SimulationDstGravity { particles, scale },
+            double_spacetime_simulator::simulation::SimulationState::DstGravity(
+                double_spacetime_simulator::simulation::SimulationDstGravity { particles, scale },
             ),
         )),
     }
@@ -231,8 +231,8 @@ fn dst_galaxy_manager(particles: Vec<Particle>, scale: f64) -> SimulationManager
     let galaxy_radius = dst_math::s3_galaxy::galaxy_radius_sim(scale);
     SimulationManager {
         state: std::sync::Arc::new(std::sync::RwLock::new(
-            dual_spacetime_simulator::simulation::SimulationState::DstGalaxy(
-                dual_spacetime_simulator::simulation::SimulationDstGalaxy {
+            double_spacetime_simulator::simulation::SimulationState::DstGalaxy(
+                double_spacetime_simulator::simulation::SimulationDstGalaxy {
                     particles,
                     scale,
                     galaxy_radius,
@@ -399,7 +399,7 @@ fn dst_gravity_reverses_when_time_dilation_negative() {
 
 #[test]
 fn dst_gravity_random_sphere_stays_finite_short_run() {
-    let scale = dual_spacetime_simulator::simulation::DEFAULT_WORLD_SCALE;
+    let scale = double_spacetime_simulator::simulation::DEFAULT_WORLD_SCALE;
     let ic = ObjectInput::RandomSphere {
         scale,
         radius: 1e10,
@@ -421,7 +421,7 @@ fn dst_gravity_random_sphere_stays_finite_short_run() {
 
 #[test]
 fn advance_with_zero_particles_is_noop_for_all_simulation_types() {
-    let scale = dual_spacetime_simulator::simulation::DEFAULT_WORLD_SCALE;
+    let scale = double_spacetime_simulator::simulation::DEFAULT_WORLD_SCALE;
     for sim_type in UiSimType::ALL {
         let mgr = SimulationManager::new();
         mgr.clear(sim_type, scale);
