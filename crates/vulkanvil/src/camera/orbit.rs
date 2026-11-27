@@ -1,5 +1,4 @@
 use glam::{Quat, Vec3};
-use std::f32::EPSILON;
 use std::time::Instant;
 
 const ANIMATION_DURATION: f32 = 0.004;
@@ -66,7 +65,7 @@ impl OrbitCamera {
     /// Orbits the camera around the target using yaw and pitch deltas.
     pub fn revolve(&mut self, delta_yaw: f32, delta_pitch: f32) {
         let mut relative = self.target - self.position;
-        if relative.length_squared() <= EPSILON {
+        if relative.length_squared() <= f32::EPSILON {
             return;
         }
         let axis = self.up.cross(relative).normalize();
@@ -88,7 +87,7 @@ impl OrbitCamera {
     /// Rotates the viewing direction in place while keeping the camera position fixed.
     pub fn look_around(&mut self, dx: f32, dy: f32) {
         let mut relative = self.target - self.position;
-        if relative.length_squared() <= EPSILON {
+        if relative.length_squared() <= f32::EPSILON {
             return;
         }
         let rotation = Quat::from_axis_angle(self.up, dx);
@@ -147,7 +146,7 @@ impl OrbitCamera {
     fn snap_orbit_distance(&mut self, distance: f32) {
         let relative = self.view_relative();
         let dist_sq = relative.length_squared();
-        if dist_sq <= EPSILON || distance <= EPSILON {
+        if dist_sq <= f32::EPSILON || distance <= f32::EPSILON {
             return;
         }
         self.position = self.target - relative * (distance / dist_sq.sqrt());
@@ -182,12 +181,12 @@ impl OrbitCamera {
 
     /// Adjusts trace follow distance by `delta`, clamped to trace distance limits.
     pub fn adjust_trace_follow_distance(&mut self, delta: f32) {
-        if delta.abs() <= EPSILON {
+        if delta.abs() <= f32::EPSILON {
             return;
         }
         let current = self.trace_follow_distance_or_default();
         let next = self.clamp_trace_follow_distance(current + delta);
-        if (next - current).abs() <= EPSILON {
+        if (next - current).abs() <= f32::EPSILON {
             return;
         }
         self.trace_follow_distance = Some(next);
@@ -201,7 +200,7 @@ impl OrbitCamera {
     /// Translates target and position together on the XZ plane, preserving orbit distance.
     pub fn pan_xz(&mut self, delta: Vec3) {
         let offset = Vec3::new(delta.x, 0.0, delta.z);
-        if offset.length_squared() <= EPSILON {
+        if offset.length_squared() <= f32::EPSILON {
             return;
         }
         self.target += offset;
@@ -215,7 +214,7 @@ impl OrbitCamera {
 
     /// Moves the viewpoint along the world Y axis while keeping the target fixed.
     pub fn move_position_y(&mut self, delta_y: f32) {
-        if delta_y.abs() <= EPSILON {
+        if delta_y.abs() <= f32::EPSILON {
             return;
         }
         self.position.y += delta_y;
@@ -226,7 +225,7 @@ impl OrbitCamera {
 
     /// Moves the rotation center along the world Y axis while keeping the position fixed.
     pub fn move_target_y(&mut self, delta_y: f32) {
-        if delta_y.abs() <= EPSILON {
+        if delta_y.abs() <= f32::EPSILON {
             return;
         }
         self.target.y += delta_y;
@@ -237,11 +236,11 @@ impl OrbitCamera {
 
     /// Moves the rotation center around the vertical axis through the viewpoint.
     pub fn move_target_around_position_y(&mut self, delta_yaw: f32) {
-        if delta_yaw.abs() <= EPSILON {
+        if delta_yaw.abs() <= f32::EPSILON {
             return;
         }
         let mut relative = self.target - self.position;
-        if relative.length_squared() <= EPSILON {
+        if relative.length_squared() <= f32::EPSILON {
             return;
         }
         let rotation = Quat::from_axis_angle(Vec3::Y, delta_yaw);
@@ -255,7 +254,7 @@ impl OrbitCamera {
     /// Translates position and target together along the view direction.
     pub fn move_forward(&mut self, delta: f32) {
         let direction = (self.target - self.position).normalize_or_zero();
-        if direction == Vec3::ZERO || delta.abs() <= EPSILON {
+        if direction == Vec3::ZERO || delta.abs() <= f32::EPSILON {
             return;
         }
         let offset = direction * delta;
@@ -280,7 +279,7 @@ impl OrbitCamera {
             return;
         }
         let relative = self.target - self.position;
-        if relative.length_squared() <= EPSILON {
+        if relative.length_squared() <= f32::EPSILON {
             return;
         }
         let rotation = Quat::from_axis_angle(relative.normalize(), delta_roll);
@@ -422,11 +421,11 @@ impl OrbitCamera {
     fn restore_lock_orbit_invariants(&mut self) {
         let relative = self.view_relative();
         let dist_sq = relative.length_squared();
-        if dist_sq <= EPSILON {
+        if dist_sq <= f32::EPSILON {
             return;
         }
         let dist = dist_sq.sqrt();
-        if (dist - self.reference_orbit_distance).abs() > EPSILON {
+        if (dist - self.reference_orbit_distance).abs() > f32::EPSILON {
             let new_relative = clamp_pitch(relative * (self.reference_orbit_distance / dist));
             self.position = self.target - new_relative;
         }
@@ -436,14 +435,14 @@ impl OrbitCamera {
 
 /// Clamps view pitch to avoid near-vertical singularities during camera motion.
 pub(crate) fn clamp_pitch(relative: Vec3) -> Vec3 {
-    if relative.length_squared() <= EPSILON {
+    if relative.length_squared() <= f32::EPSILON {
         return relative;
     }
     let len = relative.length();
     let mut dir = relative / len;
     let horiz_len = (dir.x * dir.x + dir.z * dir.z).sqrt();
 
-    if horiz_len <= EPSILON {
+    if horiz_len <= f32::EPSILON {
         let pitch = if dir.y > 0.0 {
             MAX_PITCH_RAD
         } else {
@@ -485,11 +484,11 @@ pub fn get_closest_perp_unit_to_y(position: Vec3, target: Vec3) -> Vec3 {
     let proj = dir * dir.dot(y);
     let perp = y - proj;
     let perp_len = perp.length();
-    if perp_len > EPSILON {
+    if perp_len > f32::EPSILON {
         perp / perp_len
     } else {
         let mut v = Vec3::X.cross(dir);
-        if v.length_squared() < EPSILON {
+        if v.length_squared() < f32::EPSILON {
             v = Vec3::Z.cross(dir);
         }
         v.normalize()
@@ -499,14 +498,14 @@ pub fn get_closest_perp_unit_to_y(position: Vec3, target: Vec3) -> Vec3 {
 /// Returns the axis and full angle rotating `from` toward `to` (both unit vectors).
 fn rotation_between_units(from: Vec3, to: Vec3) -> Option<(Vec3, f32)> {
     let dot = from.dot(to).clamp(-1.0, 1.0);
-    if dot > 1.0 - EPSILON {
+    if dot > 1.0 - f32::EPSILON {
         return None;
     }
     let mut axis = from.cross(to);
-    if axis.length_squared() < EPSILON {
+    if axis.length_squared() < f32::EPSILON {
         if dot < 0.0 {
             axis = from.cross(Vec3::X);
-            if axis.length_squared() < EPSILON {
+            if axis.length_squared() < f32::EPSILON {
                 axis = from.cross(Vec3::Z);
             }
         } else {
@@ -534,11 +533,11 @@ fn origin_center_target_reached(target: Vec3) -> bool {
 fn lock_up_origin_center_complete(position: Vec3, target: Vec3) -> bool {
     let relative = target - position;
     let distance = relative.length();
-    if distance <= EPSILON {
+    if distance <= f32::EPSILON {
         return true;
     }
     let to_origin = Vec3::ZERO - position;
-    if to_origin.length_squared() <= EPSILON {
+    if to_origin.length_squared() <= f32::EPSILON {
         return true;
     }
     let view_dir = relative / distance;
@@ -551,11 +550,11 @@ fn lock_up_origin_center_complete(position: Vec3, target: Vec3) -> bool {
 fn snap_lock_up_center_on_origin(position: Vec3, target: Vec3) -> Option<(Vec3, Vec3, Vec3)> {
     let relative = target - position;
     let distance = relative.length();
-    if distance <= EPSILON {
+    if distance <= f32::EPSILON {
         return None;
     }
     let to_origin = Vec3::ZERO - position;
-    if to_origin.length_squared() <= EPSILON {
+    if to_origin.length_squared() <= f32::EPSILON {
         return None;
     }
     let goal_dir = to_origin.normalize();
@@ -570,11 +569,11 @@ fn snap_lock_up_center_on_origin(position: Vec3, target: Vec3) -> Option<(Vec3, 
 fn step_lock_up_center_on_origin(position: Vec3, target: Vec3) -> Option<(Vec3, Vec3, Vec3)> {
     let relative = target - position;
     let distance = relative.length();
-    if distance <= EPSILON {
+    if distance <= f32::EPSILON {
         return None;
     }
     let to_origin = Vec3::ZERO - position;
-    if to_origin.length_squared() <= EPSILON {
+    if to_origin.length_squared() <= f32::EPSILON {
         return None;
     }
     if lock_up_origin_center_complete(position, target) {
@@ -595,11 +594,11 @@ fn step_lock_up_center_on_origin(position: Vec3, target: Vec3) -> Option<(Vec3, 
 /// Computes a rotated up vector and centered target direction for origin-centering animation.
 fn get_up_center_origin(position: Vec3, target: Vec3, up: Vec3) -> Option<(Vec3, Vec3)> {
     let relative = target - position;
-    if relative.length_squared() <= EPSILON {
+    if relative.length_squared() <= f32::EPSILON {
         return None;
     }
     let new_relative = Vec3::ZERO - position;
-    if new_relative.length_squared() <= EPSILON {
+    if new_relative.length_squared() <= f32::EPSILON {
         return None;
     }
     let rel_n = relative.normalize();

@@ -1,7 +1,6 @@
 use super::{apply_trace_forward_axis_distance, OrbitCamera};
 use crate::input::InputState;
 use glam::{Quat, Vec3};
-use std::f32::EPSILON;
 use winit::keyboard::KeyCode;
 
 pub const THRUST_DURATION: f32 = 0.4;
@@ -37,7 +36,7 @@ fn apply_spacecraft_thrust(camera: &mut OrbitCamera, direction: f32, accel: f32)
 
 /// Starts or restarts a timed forward/backward thrust from mouse wheel input.
 pub fn apply_spacecraft_wheel_thrust(camera: &mut OrbitCamera, direction: f32) {
-    if direction.abs() <= EPSILON {
+    if direction.abs() <= f32::EPSILON {
         return;
     }
     apply_spacecraft_thrust(camera, direction, THRUST_ACCEL);
@@ -46,7 +45,7 @@ pub fn apply_spacecraft_wheel_thrust(camera: &mut OrbitCamera, direction: f32) {
 /// Integrates thrust, velocity, and inertial translation for spacecraft mode.
 pub fn tick_spacecraft_camera(camera: &mut OrbitCamera, dt: f32) {
     let dt = dt.min(MAX_TICK_DT);
-    if dt <= EPSILON {
+    if dt <= f32::EPSILON {
         return;
     }
 
@@ -62,7 +61,7 @@ pub fn tick_spacecraft_camera(camera: &mut OrbitCamera, dt: f32) {
     }
 
     let displacement = camera.velocity * dt;
-    if displacement.length_squared() > EPSILON {
+    if displacement.length_squared() > f32::EPSILON {
         camera.position += displacement;
         camera.target += displacement;
     }
@@ -70,7 +69,7 @@ pub fn tick_spacecraft_camera(camera: &mut OrbitCamera, dt: f32) {
 
 /// Rotates velocity and view together, or turns in place when speed is negligible.
 fn steer_spacecraft(camera: &mut OrbitCamera, axis: Vec3, angle: f32) {
-    if axis.length_squared() <= EPSILON || angle.abs() <= EPSILON {
+    if axis.length_squared() <= f32::EPSILON || angle.abs() <= f32::EPSILON {
         return;
     }
     let axis = axis.normalize();
@@ -80,12 +79,12 @@ fn steer_spacecraft(camera: &mut OrbitCamera, axis: Vec3, angle: f32) {
         && camera.velocity.length_squared() <= VELOCITY_STEER_THRESHOLD_SQ
     {
         camera.velocity = Vec3::ZERO;
-    } else if camera.velocity.length_squared() > EPSILON {
+    } else if camera.velocity.length_squared() > f32::EPSILON {
         camera.velocity = rotation.mul_vec3(camera.velocity);
     }
 
     let relative = camera.view_relative();
-    if relative.length_squared() <= EPSILON {
+    if relative.length_squared() <= f32::EPSILON {
         return;
     }
     let position = camera.position;
@@ -95,25 +94,25 @@ fn steer_spacecraft(camera: &mut OrbitCamera, axis: Vec3, angle: f32) {
 
 /// Applies roll around the view axis and pitch around the view-right axis.
 pub fn apply_spacecraft_roll_pitch(camera: &mut OrbitCamera, roll: f32, pitch: f32) {
-    if roll.abs() <= EPSILON && pitch.abs() <= EPSILON {
+    if roll.abs() <= f32::EPSILON && pitch.abs() <= f32::EPSILON {
         return;
     }
 
     let relative = camera.view_relative();
-    if relative.length_squared() <= EPSILON {
+    if relative.length_squared() <= f32::EPSILON {
         return;
     }
 
     let forward = relative.normalize();
     let mut up = camera.up;
 
-    if roll.abs() > EPSILON {
+    if roll.abs() > f32::EPSILON {
         up = Quat::from_axis_angle(forward, roll).mul_vec3(up);
         camera.up = up;
     }
-    if pitch.abs() > EPSILON {
+    if pitch.abs() > f32::EPSILON {
         let mut right = forward.cross(up);
-        if right.length_squared() <= EPSILON {
+        if right.length_squared() <= f32::EPSILON {
             return;
         }
         right = right.normalize();
@@ -123,7 +122,7 @@ pub fn apply_spacecraft_roll_pitch(camera: &mut OrbitCamera, roll: f32, pitch: f
 
 /// Applies yaw from horizontal offset (pixels) from a screen-fixed yaw anchor.
 pub fn apply_spacecraft_yaw_from_offset(camera: &mut OrbitCamera, offset_x: f32, dt: f32) {
-    if dt <= EPSILON || offset_x.abs() <= EPSILON {
+    if dt <= f32::EPSILON || offset_x.abs() <= f32::EPSILON {
         return;
     }
     let yaw = -offset_x * STEER_RATE_PER_PX * dt;
@@ -141,7 +140,7 @@ pub fn apply_spacecraft_steer_from_offset(
     offset_y: f32,
     dt: f32,
 ) {
-    if dt <= EPSILON || (offset_x.abs() <= EPSILON && offset_y.abs() <= EPSILON) {
+    if dt <= f32::EPSILON || (offset_x.abs() <= f32::EPSILON && offset_y.abs() <= f32::EPSILON) {
         return;
     }
     let roll = -offset_x * STEER_RATE_PER_PX * dt;
@@ -182,7 +181,7 @@ pub fn apply_spacecraft_keyboard(
     keyboard_blocked: bool,
     suppress_space_shift: bool,
 ) -> bool {
-    if keyboard_blocked || dt <= EPSILON {
+    if keyboard_blocked || dt <= f32::EPSILON {
         return false;
     }
 

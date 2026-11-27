@@ -14,7 +14,6 @@ members = [
 edition = "2024"
 
 [workspace.dependencies]
-dst-expand = { path = "crates/dst-expand" }
 dst-math = { path = "crates/dst-math" }
 vulkanvil = { path = "crates/vulkanvil" }
 ash = { version = "0.38", features = ["loaded"] }

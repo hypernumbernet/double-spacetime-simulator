@@ -1,5 +1,4 @@
 use glam::Vec3;
-use std::f32::EPSILON;
 
 use super::orbit::{OrbitCamera, clamp_pitch, get_closest_perp_unit_to_y};
 
@@ -14,16 +13,16 @@ fn trace_forward(camera: &OrbitCamera, particle_velocity: Vec3) -> Vec3 {
 }
 
 fn up_perpendicular_to_forward(forward: Vec3, prior_up: Vec3) -> Vec3 {
-    if forward.length_squared() <= EPSILON {
+    if forward.length_squared() <= f32::EPSILON {
         return prior_up.normalize_or_zero();
     }
     let forward = forward.normalize();
     let up = prior_up - forward * prior_up.dot(forward);
-    if up.length_squared() > EPSILON {
+    if up.length_squared() > f32::EPSILON {
         return up.normalize();
     }
     let mut right = forward.cross(Vec3::Y);
-    if right.length_squared() <= EPSILON {
+    if right.length_squared() <= f32::EPSILON {
         right = forward.cross(Vec3::X);
     }
     right.normalize().cross(forward).normalize_or_zero()
