@@ -44,7 +44,10 @@ fn debris_comes_to_rest() {
         let b = debris_sample(i, ORIGIN, BODY_R, 25.0);
         assert!(a.at_rest, "shard {i} still moving at 12 s");
         assert_eq!(a.center, b.center, "shard {i} drifted after coming to rest");
-        assert_eq!(a.axis, b.axis, "shard {i} kept tumbling after coming to rest");
+        assert_eq!(
+            a.axis, b.axis,
+            "shard {i} kept tumbling after coming to rest"
+        );
     }
 }
 
@@ -75,7 +78,10 @@ fn fx_mesh_nonempty_and_bounded() {
     for age in [0.05, 1.0, 5.0, 60.0] {
         let s = destroyed_state(age);
         let (verts, idx) = explosion_fx_mesh(&s, eye);
-        assert!(!idx.is_empty(), "no FX at age {age} (scorch should persist)");
+        assert!(
+            !idx.is_empty(),
+            "no FX at age {age} (scorch should persist)"
+        );
         assert!(verts.len() < 1000, "FX vertex count exploded at age {age}");
         assert_eq!(verts.len() % FX_DISC_VERTS as usize, 0);
         for v in &verts {
@@ -83,7 +89,10 @@ fn fx_mesh_nonempty_and_bounded() {
                 assert!(c.is_finite());
             }
             let [r, g, b, a] = v.color;
-            assert!((0.0..=1.0).contains(&a), "alpha {a} out of range at age {age}");
+            assert!(
+                (0.0..=1.0).contains(&a),
+                "alpha {a} out of range at age {age}"
+            );
             assert!(r >= 0.0 && g >= 0.0 && b >= 0.0);
             assert!(r.is_finite() && g.is_finite() && b.is_finite());
         }
@@ -106,9 +115,15 @@ fn crash_then_meshes_render() {
         step_rocket(&mut s, DT); // advance explosion_age ~1 s
     }
     let (verts, idx) = explosion_opaque_mesh(&s);
-    assert!(!idx.is_empty() && !verts.is_empty(), "no debris after crash");
+    assert!(
+        !idx.is_empty() && !verts.is_empty(),
+        "no debris after crash"
+    );
     let (fx_verts, fx_idx) = explosion_fx_mesh(&s, [40.0, 25.0, 40.0]);
-    assert!(!fx_idx.is_empty() && !fx_verts.is_empty(), "no FX after crash");
+    assert!(
+        !fx_idx.is_empty() && !fx_verts.is_empty(),
+        "no FX after crash"
+    );
 }
 
 #[test]

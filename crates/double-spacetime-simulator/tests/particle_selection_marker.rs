@@ -1,16 +1,19 @@
 use double_spacetime_simulator::particle_selection_marker::{
-    compute_bracket_half_size, BRACKET_RADIUS_RATIO, MIN_HALF_SIZE_PX,
+    BRACKET_RADIUS_RATIO, MIN_HALF_SIZE_PX, compute_bracket_half_size,
 };
 use double_spacetime_simulator::pipeline::project_particle_screen_px;
 use double_spacetime_simulator::simulation::Particle;
-use glam::{DVec3, Mat4, Vec3};
+use glam::{
+    DVec3, Mat4, Vec3,
+    camera::rh::{proj::directx::perspective, view::look_at_mat4},
+};
 
 const INITIAL_CAMERA_POSITION: Vec3 = Vec3::new(1.6, -1.6, 3.0);
 const TEST_SIZE_SCALE: f32 = 720.0 * 0.06;
 
 fn test_mvp(aspect_ratio: f32, scale_factor: f32) -> Mat4 {
-    let view = Mat4::look_at_rh(INITIAL_CAMERA_POSITION, Vec3::ZERO, Vec3::Y);
-    let proj = Mat4::perspective_rh(std::f32::consts::FRAC_PI_4, aspect_ratio, 0.1, 100.0);
+    let view = look_at_mat4(INITIAL_CAMERA_POSITION, Vec3::ZERO, Vec3::Y);
+    let proj = perspective(std::f32::consts::FRAC_PI_4, aspect_ratio, 0.1, 100.0);
     let model = Mat4::from_scale(Vec3::splat(scale_factor));
     proj * view * model
 }

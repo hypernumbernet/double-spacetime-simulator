@@ -396,11 +396,7 @@ impl RocketState {
         let roll = load_test_range(&mut seed, -std::f64::consts::PI, std::f64::consts::PI);
         let speed = load_test_range(&mut seed, 0.0, LOAD_TEST_SPEED_MAX_MS);
         let dir = load_test_unit_direction(&mut seed);
-        let velocity = [
-            dir[0] * speed,
-            dir[1] * speed,
-            dir[2] * speed,
-        ];
+        let velocity = [dir[0] * speed, dir[1] * speed, dir[2] * speed];
         let omega = [
             load_test_range(&mut seed, -LOAD_TEST_OMEGA_MAX, LOAD_TEST_OMEGA_MAX),
             load_test_range(&mut seed, -LOAD_TEST_OMEGA_MAX, LOAD_TEST_OMEGA_MAX),
@@ -556,11 +552,7 @@ impl RocketState {
         let f_prop_w = motor_rotate_vector(&self.motor, prop.force);
 
         // --- Forces (world) ---
-        let mut force = [
-            f_prop_w[0],
-            -mass * GRAVITY + f_prop_w[1],
-            f_prop_w[2],
-        ];
+        let mut force = [f_prop_w[0], -mass * GRAVITY + f_prop_w[1], f_prop_w[2]];
         let mut body_torque = prop.torque;
 
         // Air drag (Earth). Moon mode is vacuum — skip entirely.
@@ -1009,7 +1001,13 @@ mod unit_tests {
 
     #[test]
     fn thrust_dir_matches_pga_gimbal_rotor() {
-        let cases = [(0.0, 0.0), (0.12, 0.0), (0.0, -0.08), (0.1, 0.07), (-0.05, 0.11)];
+        let cases = [
+            (0.0, 0.0),
+            (0.12, 0.0),
+            (0.0, -0.08),
+            (0.1, 0.07),
+            (-0.05, 0.11),
+        ];
         for (p, y) in cases {
             let closed = thrust_dir_body(p, y);
             let pga = rotate_vector_by_rotor(&gimbal_rotor(p, y), [0.0, 1.0, 0.0]);
@@ -1065,9 +1063,11 @@ mod unit_tests {
         // F = −k |v| v = −2 · 10 · (10,0,0) = (−200, 0, 0)
         assert!((f[0] + 200.0).abs() < 1e-9);
         assert!(f[1].abs() < 1e-12 && f[2].abs() < 1e-12);
-        assert!(air_drag_force([0.0, 0.0, 0.0], 2.0)
-            .iter()
-            .all(|c| c.abs() < 1e-12));
+        assert!(
+            air_drag_force([0.0, 0.0, 0.0], 2.0)
+                .iter()
+                .all(|c| c.abs() < 1e-12)
+        );
     }
 
     #[test]

@@ -72,16 +72,8 @@ fn dst_gravity_step_at_single_pass_matches_potential_and_sign() {
     let k_scale = k_scale_from_light_speed(C / scale);
     let dt = 1.0;
 
-    let (velocity_delta, lambda_eff, proper_time_delta) = dst_gravity_step_at(
-        1,
-        &positions,
-        &masses,
-        G,
-        G * dt,
-        k_scale,
-        EPSILON,
-        dt,
-    );
+    let (velocity_delta, lambda_eff, proper_time_delta) =
+        dst_gravity_step_at(1, &positions, &masses, G, G * dt, k_scale, EPSILON, dt);
 
     let phi = gravitational_potential_at(1, &positions, &masses, G, EPSILON);
     let expected_lambda = k_scale * phi;
@@ -90,7 +82,10 @@ fn dst_gravity_step_at_single_pass_matches_potential_and_sign() {
     assert!((lambda_eff - expected_lambda).abs() < 1e-12 * expected_lambda.abs().max(1.0));
     assert!((proper_time_delta - dt * dilation).abs() < 1e-12);
     assert!(velocity_delta.is_finite());
-    assert!(velocity_delta.x < 0.0, "weak field should accelerate toward center");
+    assert!(
+        velocity_delta.x < 0.0,
+        "weak field should accelerate toward center"
+    );
     assert_eq!(gravity_sign_from_time_dilation(dilation), 1.0);
 }
 
@@ -100,7 +95,10 @@ fn gravity_sign_flips_when_dilation_negative() {
     assert_eq!(gravity_sign_from_time_dilation(0.0), 1.0);
     assert_eq!(gravity_sign_from_time_dilation(-0.5), -1.0);
     assert!(time_dilation(std::f64::consts::PI) < 0.0);
-    assert_eq!(gravity_sign_from_time_dilation(time_dilation(std::f64::consts::PI)), -1.0);
+    assert_eq!(
+        gravity_sign_from_time_dilation(time_dilation(std::f64::consts::PI)),
+        -1.0
+    );
 }
 
 #[test]

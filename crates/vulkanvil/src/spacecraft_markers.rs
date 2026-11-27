@@ -18,10 +18,7 @@ fn steer_anchor_center(ctx: &Context, anchor: [f64; 2]) -> Pos2 {
 }
 
 fn steer_marker_painter(ctx: &Context, layer: &str) -> Painter {
-    ctx.layer_painter(LayerId::new(
-        Order::Foreground,
-        egui::Id::new(layer),
-    ))
+    ctx.layer_painter(LayerId::new(Order::Foreground, egui::Id::new(layer)))
 }
 
 fn steer_marker_stroke() -> Stroke {
@@ -74,11 +71,17 @@ pub fn draw_spacecraft_steer_marker(ctx: &Context, anchor: [f64; 2]) {
     painter.circle_stroke(center, STEER_MARKER_RADIUS, stroke);
     let half = STEER_MARKER_RADIUS * 0.55;
     painter.line_segment(
-        [center - egui::vec2(half, 0.0), center + egui::vec2(half, 0.0)],
+        [
+            center - egui::vec2(half, 0.0),
+            center + egui::vec2(half, 0.0),
+        ],
         stroke,
     );
     painter.line_segment(
-        [center - egui::vec2(0.0, half), center + egui::vec2(0.0, half)],
+        [
+            center - egui::vec2(0.0, half),
+            center + egui::vec2(0.0, half),
+        ],
         stroke,
     );
 }

@@ -10,7 +10,10 @@ use crate::mesh::{
 use crate::sim::RocketState;
 use crate::texture::{Texture, create_ground_textures};
 use ash::vk;
-use glam::{Mat4, Vec3};
+use glam::{
+    Mat4, Vec3,
+    camera::rh::{proj::vulkan::perspective, view::look_at_mat4},
+};
 use gpu_allocator::vulkan::Allocator;
 use std::ffi::CStr;
 use std::sync::{Arc, Mutex};
@@ -124,8 +127,7 @@ impl Renderer {
             size: std::mem::size_of::<MeshPush>() as u32,
         };
         let mesh_ranges = [mesh_push];
-        let mesh_pl_ci =
-            vk::PipelineLayoutCreateInfo::default().push_constant_ranges(&mesh_ranges);
+        let mesh_pl_ci = vk::PipelineLayoutCreateInfo::default().push_constant_ranges(&mesh_ranges);
         let mesh_layout = unsafe { device.create_pipeline_layout(&mesh_pl_ci, None) }.unwrap();
         let tri_pipeline = create_mesh_pipeline(&device, render_pass, mesh_layout);
         let fx_pipeline = create_fx_pipeline(&device, render_pass, mesh_layout);
@@ -323,8 +325,7 @@ impl Renderer {
         if !idx.is_empty() {
             self.rocket = Some(self.upload_mesh(&verts, &idx));
         }
-        let (fx_verts, fx_idx) =
-            explosion_fx_mesh(state, [cam_eye.x, cam_eye.y, cam_eye.z]);
+        let (fx_verts, fx_idx) = explosion_fx_mesh(state, [cam_eye.x, cam_eye.y, cam_eye.z]);
         if !fx_idx.is_empty() {
             self.fx = Some(self.upload_fx(&fx_verts, &fx_idx));
         }
@@ -414,7 +415,9 @@ impl Renderer {
 
         let (image_index, _suboptimal) = match vb.acquire_next_image() {
             Ok(v) => v,
-            Err(vk::Result::ERROR_OUT_OF_DATE_KHR) => return Err(vk::Result::ERROR_OUT_OF_DATE_KHR),
+            Err(vk::Result::ERROR_OUT_OF_DATE_KHR) => {
+                return Err(vk::Result::ERROR_OUT_OF_DATE_KHR);
+            }
             Err(e) => return Err(e),
         };
 
@@ -448,8 +451,7 @@ impl Renderer {
             vb.device
                 .cmd_begin_render_pass(cmd, &rp_info, vk::SubpassContents::INLINE);
 
-            let (viewport, scissor) =
-                content_viewport_scissor(vb.swapchain_extent, left_inset_px);
+            let (viewport, scissor) = content_viewport_scissor(vb.swapchain_extent, left_inset_px);
             vb.device.cmd_set_viewport(cmd, 0, &[viewport]);
             vb.device.cmd_set_scissor(cmd, 0, &[scissor]);
 
@@ -570,9 +572,11 @@ impl Drop for Renderer {
             self.device.destroy_pipeline(self.fx_pipeline, None);
             self.device.destroy_pipeline(self.ground_pipeline, None);
             self.device.destroy_pipeline_layout(self.mesh_layout, None);
-            self.device.destroy_pipeline_layout(self.ground_layout, None);
+            self.device
+                .destroy_pipeline_layout(self.ground_layout, None);
             self.device.destroy_descriptor_pool(self.desc_pool, None);
-            self.device.destroy_descriptor_set_layout(self.desc_set_layout, None);
+            self.device
+                .destroy_descriptor_set_layout(self.desc_set_layout, None);
             for &fb in &self.framebuffers {
                 self.device.destroy_framebuffer(fb, None);
             }
@@ -686,16 +690,8 @@ fn create_mesh_pipeline(
         MESH_FRAG,
         std::mem::size_of::<Vertex>() as u32,
         &[
-            (
-                0,
-                vk::Format::R32G32B32_SFLOAT,
-                0,
-            ),
-            (
-                1,
-                vk::Format::R32G32B32_SFLOAT,
-                12,
-            ),
+            (0, vk::Format::R32G32B32_SFLOAT, 0),
+            (1, vk::Format::R32G32B32_SFLOAT, 12),
         ],
         true,
         false,
@@ -867,10 +863,7 @@ fn content_viewport_scissor(
         max_depth: 1.0,
     };
     let scissor = vk::Rect2D {
-        offset: vk::Offset2D {
-            x: inset_i,
-            y: 0,
-        },
+        offset: vk::Offset2D { x: inset_i, y: 0 },
         extent: vk::Extent2D {
             width: content_w,
             height: extent.height,
@@ -905,18 +898,12 @@ pub fn min_orbit_pitch(target_y: f32, distance: f32, min_eye_y: f32) -> f32 {
 ///
 /// Uses [`get_closest_perp_unit_to_y`] from vulkanvil so nadir/zenith views stay
 /// well-defined (no `look_at` singularity from world-Y up).
-pub fn camera_view_proj(
-    eye: Vec3,
-    target: Vec3,
-    aspect: f32,
-    far: f32,
-) -> Mat4 {
+pub fn camera_view_proj(eye: Vec3, target: Vec3, aspect: f32, far: f32) -> Mat4 {
     let up = get_closest_perp_unit_to_y(eye, target);
-    let view = Mat4::look_at_rh(eye, target, up);
-    // Vulkan NDC has +Y down; flip projection Y so world +Y appears up on screen.
+    let view = look_at_mat4(eye, target, up);
+    // Vulkan projection is Y-down so world +Y appears up on screen.
     let far = far.max(10.0);
-    let mut proj = Mat4::perspective_rh(45f32.to_radians(), aspect.max(0.1), CAMERA_NEAR, far);
-    proj.y_axis.y *= -1.0;
+    let proj = perspective(45f32.to_radians(), aspect.max(0.1), CAMERA_NEAR, far);
     proj * view
 }
 

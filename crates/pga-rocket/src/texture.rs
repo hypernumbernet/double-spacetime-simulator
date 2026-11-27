@@ -101,11 +101,7 @@ fn fbm_tile(px: f32, py: f32, base_cells: u32, salt: u32, octaves: u32) -> f32 {
         }
         cells = next;
     }
-    if norm > 0.0 {
-        sum / norm
-    } else {
-        0.0
-    }
+    if norm > 0.0 { sum / norm } else { 0.0 }
 }
 
 #[inline]
@@ -159,9 +155,26 @@ pub fn generate_grass_pixels_size(size: u32) -> Vec<u8> {
         let ny = y as f32 * inv;
         for x in 0..size {
             let nx = x as f32 * inv;
-            let meadow = fbm_tile(nx * broad_cells as f32, ny * broad_cells as f32, broad_cells, 11, 2);
-            let clump = fbm_tile(nx * mid_cells as f32, ny * mid_cells as f32, mid_cells, 23, 2);
-            let grit = vnoise_tile_pow2(nx * fine_cells as f32, ny * fine_cells as f32, fine_cells, 41);
+            let meadow = fbm_tile(
+                nx * broad_cells as f32,
+                ny * broad_cells as f32,
+                broad_cells,
+                11,
+                2,
+            );
+            let clump = fbm_tile(
+                nx * mid_cells as f32,
+                ny * mid_cells as f32,
+                mid_cells,
+                23,
+                2,
+            );
+            let grit = vnoise_tile_pow2(
+                nx * fine_cells as f32,
+                ny * fine_cells as f32,
+                fine_cells,
+                41,
+            );
             let dirt_n = fbm_tile(
                 nx * broad_cells as f32 + 2.0,
                 ny * broad_cells as f32 + 1.0,
@@ -201,9 +214,26 @@ pub fn generate_moon_pixels_size(size: u32) -> Vec<u8> {
         let ny = y as f32 * inv;
         for x in 0..size {
             let nx = x as f32 * inv;
-            let broad = fbm_tile(nx * broad_cells as f32, ny * broad_cells as f32, broad_cells, 71, 2);
-            let mid = fbm_tile(nx * mid_cells as f32, ny * mid_cells as f32, mid_cells, 83, 2);
-            let grit = vnoise_tile_pow2(nx * fine_cells as f32, ny * fine_cells as f32, fine_cells, 97);
+            let broad = fbm_tile(
+                nx * broad_cells as f32,
+                ny * broad_cells as f32,
+                broad_cells,
+                71,
+                2,
+            );
+            let mid = fbm_tile(
+                nx * mid_cells as f32,
+                ny * mid_cells as f32,
+                mid_cells,
+                83,
+                2,
+            );
+            let grit = vnoise_tile_pow2(
+                nx * fine_cells as f32,
+                ny * fine_cells as f32,
+                fine_cells,
+                97,
+            );
             let crater_field = fbm_tile(
                 nx * broad_cells as f32 + 1.5,
                 ny * broad_cells as f32 + 0.5,
@@ -250,8 +280,19 @@ pub fn generate_paved_pixels_size(size: u32) -> Vec<u8> {
         let seam_y = t_y * t_y;
         for x in 0..size {
             let nx = x as f32 * inv;
-            let n = fbm_tile(nx * mid_cells as f32, ny * mid_cells as f32, mid_cells, 7, 2);
-            let grit = vnoise_tile_pow2(nx * fine_cells as f32, ny * fine_cells as f32, fine_cells, 13);
+            let n = fbm_tile(
+                nx * mid_cells as f32,
+                ny * mid_cells as f32,
+                mid_cells,
+                7,
+                2,
+            );
+            let grit = vnoise_tile_pow2(
+                nx * fine_cells as f32,
+                ny * fine_cells as f32,
+                fine_cells,
+                13,
+            );
             let sx = (x % seam_period) as f32;
             let d_x = sx.min(seam_f - sx);
             let t_x = 1.0 - (d_x * inv3).clamp(0.0, 1.0);
@@ -294,7 +335,8 @@ pub fn downsample_rgba8(src: &[u8], width: u32, height: u32) -> (u32, u32, Vec<u
             let i01 = row1 + x0 * 4;
             let i11 = row1 + x1 * 4;
             let o = (y * nw as usize + x) * 4;
-            out[o] = ((src[i00] as u32 + src[i10] as u32 + src[i01] as u32 + src[i11] as u32) / 4) as u8;
+            out[o] =
+                ((src[i00] as u32 + src[i10] as u32 + src[i01] as u32 + src[i11] as u32) / 4) as u8;
             out[o + 1] = ((src[i00 + 1] as u32
                 + src[i10 + 1] as u32
                 + src[i01 + 1] as u32
@@ -342,7 +384,11 @@ pub fn mean_rgb(pixels: &[u8]) -> [f32; 3] {
         acc[1] += chunk[1] as f32;
         acc[2] += chunk[2] as f32;
     }
-    [acc[0] / (n * 255.0), acc[1] / (n * 255.0), acc[2] / (n * 255.0)]
+    [
+        acc[0] / (n * 255.0),
+        acc[1] / (n * 255.0),
+        acc[2] / (n * 255.0),
+    ]
 }
 
 // --- Vulkan upload -----------------------------------------------------------
@@ -708,10 +754,7 @@ fn sampler_anisotropy(vb: &VulkanBase) -> (bool, f32) {
             .get_physical_device_properties(vb.physical_device)
     };
     let max_aniso = props.limits.max_sampler_anisotropy;
-    let features = unsafe {
-        vb.instance
-            .get_physical_device_features(vb.physical_device)
-    };
+    let features = unsafe { vb.instance.get_physical_device_features(vb.physical_device) };
     let enable = features.sampler_anisotropy == vk::TRUE && max_aniso >= 1.0;
     let aniso = if enable { max_aniso.min(8.0) } else { 1.0 };
     (enable, aniso)

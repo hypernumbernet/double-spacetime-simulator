@@ -46,12 +46,14 @@ fn load_from_snapshot_restores_particles() {
 
 #[test]
 fn particle_snapshot_file_roundtrip() {
-    let particles = vec![double_spacetime_simulator::simulation::Particle::from_kinematics(
-        DVec3::new(1.0, 2.0, 3.0),
-        DVec3::new(4.0, 5.0, 6.0),
-        7.0,
-        [0.1, 0.2, 0.3, 1.0],
-    )];
+    let particles = vec![
+        double_spacetime_simulator::simulation::Particle::from_kinematics(
+            DVec3::new(1.0, 2.0, 3.0),
+            DVec3::new(4.0, 5.0, 6.0),
+            7.0,
+            [0.1, 0.2, 0.3, 1.0],
+        ),
+    ];
 
     let dir = std::env::temp_dir().join("double-spacetime-simulator-test");
     for (i, sim_type) in SimulationType::ALL.into_iter().enumerate() {
@@ -91,12 +93,14 @@ fn particle_snapshot_loads_legacy_v1_json_without_momentum() {
 
 #[test]
 fn particle_snapshot_loads_legacy_json() {
-    let particles = vec![double_spacetime_simulator::simulation::Particle::from_kinematics(
-        DVec3::ZERO,
-        DVec3::ZERO,
-        1.0,
-        [1.0, 1.0, 1.0, 1.0],
-    )];
+    let particles = vec![
+        double_spacetime_simulator::simulation::Particle::from_kinematics(
+            DVec3::ZERO,
+            DVec3::ZERO,
+            1.0,
+            [1.0, 1.0, 1.0, 1.0],
+        ),
+    ];
     let snapshot = ParticleSnapshot::new(SimulationType::Normal, 1e10, particles);
     let json = serde_json::to_string_pretty(&snapshot).unwrap();
 

@@ -110,7 +110,9 @@ impl AllocatedImage {
         aspect: vk::ImageAspectFlags,
         name: &str,
     ) -> Self {
-        Self::new_with_mips(device, allocator, width, height, 1, format, usage, aspect, name)
+        Self::new_with_mips(
+            device, allocator, width, height, 1, format, usage, aspect, name,
+        )
     }
 
     /// Creates a 2D image with `mip_levels` mips (must be ≥ 1), device-local allocation, and view.

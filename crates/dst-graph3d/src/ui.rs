@@ -10,11 +10,7 @@ const PANEL_DEFAULT_X: f32 = 16.0;
 const PANEL_MENU_OFFSET_Y: f32 = 16.0;
 
 /// Draws the full control UI and applies user edits to shared UI state.
-pub fn draw_ui(
-    ui_state: &Arc<RwLock<UiState>>,
-    settings: &mut AppSettings,
-    ctx: &egui::Context,
-) {
+pub fn draw_ui(ui_state: &Arc<RwLock<UiState>>, settings: &mut AppSettings, ctx: &egui::Context) {
     let mut uis = ui_state.write().unwrap();
     let menu_bar_height = egui::TopBottomPanel::top("menu_bar")
         .show(ctx, |ui| {

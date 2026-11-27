@@ -105,7 +105,11 @@ impl BaseScaleUnit {
     /// Decimal places used when rounding display values for this unit.
     pub fn display_decimal_places(self) -> i32 {
         match self {
-            BaseScaleUnit::Mpc | BaseScaleUnit::Kpc | BaseScaleUnit::Pc | BaseScaleUnit::Ly | BaseScaleUnit::Au => 6,
+            BaseScaleUnit::Mpc
+            | BaseScaleUnit::Kpc
+            | BaseScaleUnit::Pc
+            | BaseScaleUnit::Ly
+            | BaseScaleUnit::Au => 6,
             BaseScaleUnit::Km | BaseScaleUnit::M => 3,
             BaseScaleUnit::Mm => 6,
             BaseScaleUnit::Nm | BaseScaleUnit::Fm => 2,
@@ -653,8 +657,7 @@ impl UiState {
         if !self.simulation_type.requires_subluminal_velocity() {
             return;
         }
-        self.random_sphere.velocity_std =
-            clamp_scalar_speed_m_s(self.random_sphere.velocity_std);
+        self.random_sphere.velocity_std = clamp_scalar_speed_m_s(self.random_sphere.velocity_std);
         self.random_cube.velocity_std = clamp_scalar_speed_m_s(self.random_cube.velocity_std);
         self.elliptical_orbit.planetary_speed =
             clamp_scalar_speed_m_s(self.elliptical_orbit.planetary_speed);

@@ -90,10 +90,9 @@ pub fn build_graph_geometry(
     graph_velocity_scale: f64,
 ) -> GraphGeometry {
     match graph_type {
-        GraphType::SphericalFibonacciLattice => build_spherical_fibonacci_geometry(
-            graph_sample_count,
-            graph_t_slice,
-        ),
+        GraphType::SphericalFibonacciLattice => {
+            build_spherical_fibonacci_geometry(graph_sample_count, graph_t_slice)
+        }
         GraphType::RapidityFieldMatrix | GraphType::RapidityFieldBiquaternion => GraphGeometry {
             positions: Vec::new(),
             colors: Vec::new(),
@@ -116,8 +115,7 @@ pub fn build_points(
 ) -> (Vec<[f32; 3]>, Vec<[f32; 4]>) {
     match graph_type {
         GraphType::SphericalFibonacciLattice => {
-            let geometry =
-                build_spherical_fibonacci_geometry(graph_sample_count, graph_t_slice);
+            let geometry = build_spherical_fibonacci_geometry(graph_sample_count, graph_t_slice);
             (geometry.positions, geometry.colors)
         }
         GraphType::RapidityFieldMatrix | GraphType::RapidityFieldBiquaternion => {
@@ -167,11 +165,9 @@ pub fn build_graph_line_vertices(
     graph_velocity_scale: f64,
 ) -> Vec<([f32; 3], [f32; 4])> {
     match graph_type {
-        GraphType::SphericalFibonacciLattice => build_spherical_fibonacci_geometry(
-            graph_sample_count,
-            graph_t_slice,
-        )
-        .line_vertices,
+        GraphType::SphericalFibonacciLattice => {
+            build_spherical_fibonacci_geometry(graph_sample_count, graph_t_slice).line_vertices
+        }
         GraphType::RapidityFieldMatrix => build_rapidity_field_line_vertices_with(
             graph_sample_count,
             graph_velocity_scale,

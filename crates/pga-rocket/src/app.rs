@@ -4,12 +4,12 @@ use crate::control::{ControlMapper, KeySnapshot};
 use crate::integration::Gui;
 use crate::landing::LandingAutopilot;
 use crate::mesh::{GRASS_METERS_PER_TILE, hud_text, random_target_xz};
-use crate::target_landing::TargetLandingAutopilot;
 use crate::renderer::{
     MIN_CAMERA_HEIGHT, MOON_SKY_COLOR, Renderer, SKY_COLOR, camera_view_proj, min_orbit_pitch,
     orbit_camera_far, orbit_eye_offset,
 };
 use crate::sim::{ControlCommand, RocketState, step_rocket};
+use crate::target_landing::TargetLandingAutopilot;
 use crate::ui::{ContentRegion, draw_params_panel};
 use ash::vk;
 use glam::Vec3;
@@ -19,7 +19,9 @@ use std::time::{Duration, Instant};
 use vulkanvil::{InputState, OrbitCamera, VulkanBase, get_closest_perp_unit_to_y};
 use winit::application::ApplicationHandler;
 use winit::dpi::LogicalSize;
-use winit::event::{DeviceEvent, DeviceId, ElementState, MouseButton, MouseScrollDelta, WindowEvent};
+use winit::event::{
+    DeviceEvent, DeviceId, ElementState, MouseButton, MouseScrollDelta, WindowEvent,
+};
 use winit::event_loop::{ActiveEventLoop, ControlFlow};
 use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::window::Window;
@@ -51,7 +53,9 @@ fn orbit_hud_angles(cam: &OrbitCamera) -> (f32, f32, f32) {
 }
 
 fn clamp_orbit_distance(cam: &mut OrbitCamera) {
-    let distance = cam.orbit_distance().clamp(CAM_DISTANCE_MIN, CAM_DISTANCE_MAX);
+    let distance = cam
+        .orbit_distance()
+        .clamp(CAM_DISTANCE_MIN, CAM_DISTANCE_MAX);
     let dir = cam.view_relative().normalize_or_zero();
     if dir != Vec3::ZERO {
         cam.position = cam.target - dir * distance;
@@ -281,8 +285,8 @@ impl App {
         }
 
         let target_xz_f64 = [self.target_xz[0] as f64, self.target_xz[1] as f64];
-        let using_autopilot = !self.rocket.destroyed
-            && (self.target_landing.enabled || self.landing.enabled);
+        let using_autopilot =
+            !self.rocket.destroyed && (self.target_landing.enabled || self.landing.enabled);
         let cmd = if self.rocket.destroyed {
             ControlCommand::default()
         } else if self.target_landing.enabled {
@@ -414,12 +418,7 @@ impl ApplicationHandler for App {
 
         let app_name = CString::new("pga-rocket").unwrap();
         // FIFO (vsync) present mode — mailbox=false avoids uncapped multi-thousand FPS.
-        let vb = VulkanBase::new(
-            &window,
-            false,
-            &app_name,
-            vk::make_api_version(0, 0, 1, 0),
-        );
+        let vb = VulkanBase::new(&window, false, &app_name, vk::make_api_version(0, 0, 1, 0));
         let mut renderer = Renderer::new(&vb);
         renderer.set_target_xz(self.target_xz);
         // No camera yet; the eye only sorts explosion FX, which is empty at startup.
@@ -457,10 +456,7 @@ impl ApplicationHandler for App {
         if let (Some(window), Some(gui)) = (self.window.as_ref(), self.gui.as_mut()) {
             let _ = gui.update(window, &event);
         }
-        let ui_wants_pointer = self
-            .gui
-            .as_ref()
-            .is_some_and(|g| g.pointer_wants_input());
+        let ui_wants_pointer = self.gui.as_ref().is_some_and(|g| g.pointer_wants_input());
 
         match event {
             WindowEvent::CloseRequested => event_loop.exit(),
@@ -479,8 +475,7 @@ impl ApplicationHandler for App {
             WindowEvent::MouseInput { state, button, .. } => {
                 // Left or right button drag orbits the camera; no cursor grab.
                 // Skip orbit start when the pointer is over the egui panel.
-                let is_orbit_button =
-                    matches!(button, MouseButton::Left | MouseButton::Right);
+                let is_orbit_button = matches!(button, MouseButton::Left | MouseButton::Right);
                 if is_orbit_button {
                     match state {
                         ElementState::Pressed => {

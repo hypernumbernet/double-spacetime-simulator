@@ -1,4 +1,4 @@
-use super::{apply_trace_forward_axis_distance, OrbitCamera};
+use super::{OrbitCamera, apply_trace_forward_axis_distance};
 use crate::input::InputState;
 use glam::{Quat, Vec3};
 use winit::keyboard::KeyCode;
@@ -242,13 +242,7 @@ pub fn tick_spacecraft_steer_and_motion(
     keyboard_blocked: bool,
     suppress_space_shift: bool,
 ) {
-    apply_spacecraft_keyboard(
-        camera,
-        input,
-        dt,
-        keyboard_blocked,
-        suppress_space_shift,
-    );
+    apply_spacecraft_keyboard(camera, input, dt, keyboard_blocked, suppress_space_shift);
     if let Some(offset_x) = yaw_steer_offset_x {
         apply_spacecraft_yaw_from_offset(camera, offset_x, dt);
     } else if let Some((offset_x, offset_y)) = anchor_steer_offset {
@@ -293,4 +287,3 @@ pub fn spacecraft_scene_wheel_allowed(
         steer_anchor_active || !ui_blocks_pointer
     }
 }
-

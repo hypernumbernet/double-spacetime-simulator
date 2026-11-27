@@ -154,11 +154,7 @@ impl OrbitCamera {
 
     /// Sets the min/max world-space trace follow distance used for clamping.
     pub fn set_trace_follow_distance_limits(&mut self, min: f32, max: f32) {
-        self.trace_follow_distance_limits = if min <= max {
-            (min, max)
-        } else {
-            (max, min)
-        };
+        self.trace_follow_distance_limits = if min <= max { (min, max) } else { (max, min) };
     }
 
     /// Re-clamps the active trace follow distance to the current limits.
@@ -342,8 +338,7 @@ impl OrbitCamera {
             return;
         };
         self.up = self.up.slerp(end.0, ORIGIN_CENTER_STEP).normalize();
-        self.target =
-            self.target * (1.0 - ORIGIN_CENTER_STEP) + Vec3::ZERO * ORIGIN_CENTER_STEP;
+        self.target = self.target * (1.0 - ORIGIN_CENTER_STEP) + Vec3::ZERO * ORIGIN_CENTER_STEP;
         self.animating_to_origin -= 1;
         self.start_time = Some(Instant::now());
     }
@@ -582,8 +577,7 @@ fn step_lock_up_center_on_origin(position: Vec3, target: Vec3) -> Option<(Vec3, 
 
     let view_dir = relative / distance;
     let goal_dir = to_origin.normalize();
-    let new_target =
-        target * (1.0 - ORIGIN_CENTER_STEP) + Vec3::ZERO * ORIGIN_CENTER_STEP;
+    let new_target = target * (1.0 - ORIGIN_CENTER_STEP) + Vec3::ZERO * ORIGIN_CENTER_STEP;
     let new_view_dir = slerp_unit_toward(view_dir, goal_dir, ORIGIN_CENTER_STEP);
     let new_relative = clamp_pitch(new_view_dir * distance);
     let new_position = new_target - new_relative;

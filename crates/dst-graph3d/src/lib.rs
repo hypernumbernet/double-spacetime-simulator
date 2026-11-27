@@ -135,12 +135,7 @@ impl Default for App {
             settings,
             last_graph3d_fingerprint: u64::MAX,
             graph_params_cache: GraphParamsCache {
-                params: (
-                    GraphType::SphericalFibonacciLattice,
-                    0,
-                    f64::NAN,
-                    f64::NAN,
-                ),
+                params: (GraphType::SphericalFibonacciLattice, 0, f64::NAN, f64::NAN),
                 fingerprint: 0,
             },
             graph_build_generation: 0,
@@ -433,7 +428,12 @@ impl ApplicationHandler for App {
                 ) {
                     match delta {
                         MouseScrollDelta::LineDelta(_, y) => {
-                            apply_camera_mouse_wheel(pipeline.camera_mut(), lock_camera_up, *y, false);
+                            apply_camera_mouse_wheel(
+                                pipeline.camera_mut(),
+                                lock_camera_up,
+                                *y,
+                                false,
+                            );
                         }
                         MouseScrollDelta::PixelDelta(PhysicalPosition { y, .. }) => {
                             apply_camera_mouse_wheel(
@@ -538,10 +538,8 @@ impl ApplicationHandler for App {
                     self.graph3d_pending_rx = None;
                     if result.generation == self.graph_build_generation && result.fp == fp {
                         if let Some(pipeline) = self.render_pipeline.as_mut() {
-                            pipeline.set_particles(
-                                &result.geometry.positions,
-                                &result.geometry.colors,
-                            );
+                            pipeline
+                                .set_particles(&result.geometry.positions, &result.geometry.colors);
                             pipeline.set_graph_lines(&result.geometry.line_vertices);
                         }
                         self.last_graph3d_fingerprint = result.fp;
@@ -613,12 +611,8 @@ impl App {
     fn graph_params_fingerprint(&mut self, params: GraphParams) -> u64 {
         if params != self.graph_params_cache.params {
             self.graph_params_cache.params = params;
-            self.graph_params_cache.fingerprint = crate::graph3d::graph_params_fingerprint(
-                params.0,
-                params.1,
-                params.2,
-                params.3,
-            );
+            self.graph_params_cache.fingerprint =
+                crate::graph3d::graph_params_fingerprint(params.0, params.1, params.2, params.3);
         }
         self.graph_params_cache.fingerprint
     }

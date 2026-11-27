@@ -16,10 +16,7 @@ pub fn selection_index_bits(index: i32) -> f32 {
 /// Result is floored at [`MIN_HALF_SIZE_PX`]. Mirrors the GPU sizing formula.
 #[inline]
 pub fn compute_bracket_half_size(view_depth: f32, size_scale: f32) -> f32 {
-    if !view_depth.is_finite()
-        || view_depth <= 0.0
-        || !size_scale.is_finite()
-        || size_scale <= 0.0
+    if !view_depth.is_finite() || view_depth <= 0.0 || !size_scale.is_finite() || size_scale <= 0.0
     {
         return MIN_HALF_SIZE_PX;
     }

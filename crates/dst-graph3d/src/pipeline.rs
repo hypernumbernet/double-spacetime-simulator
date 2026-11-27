@@ -2,7 +2,10 @@ use crate::display_buffer::{DisplayParticleBuffer, create_particle_descriptor_se
 use crate::integration::Gui;
 use crate::ui_state::ParticleDisplayMode;
 use ash::vk;
-use glam::{Mat4, Vec3};
+use glam::{
+    Mat4, Vec3,
+    camera::rh::{proj::directx::perspective, view::look_at_mat4},
+};
 use gpu_allocator::vulkan::Allocator;
 use std::sync::{Arc, Mutex};
 use vulkanvil::{
@@ -230,8 +233,7 @@ impl ParticleRenderPipeline {
             self.draw_axes(command_buffer, &pc);
         }
 
-        let size_scale =
-            compute_particle_size_scale(extent.height as f32, particle_display_mode);
+        let size_scale = compute_particle_size_scale(extent.height as f32, particle_display_mode);
         let pc = PushConstants {
             view_proj: view_proj_cols,
             size_scale,
@@ -418,8 +420,8 @@ impl ParticleRenderPipeline {
 
     /// Computes view-projection transform for scene rendering.
     fn compute_view_proj(&self, aspect_ratio: f32) -> Mat4 {
-        let view = Mat4::look_at_rh(self.camera.position, self.camera.target, self.camera.up);
-        let proj = Mat4::perspective_rh(std::f32::consts::FRAC_PI_4, aspect_ratio, 0.1, 100.0);
+        let view = look_at_mat4(self.camera.position, self.camera.target, self.camera.up);
+        let proj = perspective(std::f32::consts::FRAC_PI_4, aspect_ratio, 0.1, 100.0);
         proj * view
     }
 
@@ -516,10 +518,7 @@ fn upload_axes_line_buffer(
     *vertex_count = count;
 }
 
-fn write_mapped_axes_tuples(
-    buffer: &AllocatedBuffer,
-    vertices: &[([f32; 3], [f32; 4])],
-) -> bool {
+fn write_mapped_axes_tuples(buffer: &AllocatedBuffer, vertices: &[([f32; 3], [f32; 4])]) -> bool {
     let required_bytes = (std::mem::size_of::<AxesVertex>() * vertices.len()) as u64;
     let Some(alloc) = buffer.allocation.as_ref() else {
         return false;

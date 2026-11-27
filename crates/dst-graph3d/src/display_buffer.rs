@@ -103,12 +103,7 @@ impl DisplayParticleBuffer {
         let alloc = Arc::clone(&self.allocator);
         let old = std::mem::replace(
             &mut self.particle_buffer,
-            create_particle_storage_buffer(
-                &self.device,
-                &alloc,
-                capacity,
-                "display_particle_ssbo",
-            ),
+            create_particle_storage_buffer(&self.device, &alloc, capacity, "display_particle_ssbo"),
         );
         old.destroy(&self.device, &alloc);
         self.buffer_capacity = capacity;

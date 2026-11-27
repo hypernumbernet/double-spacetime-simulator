@@ -1,7 +1,6 @@
 use double_spacetime_simulator::trace_follow::{
+    MAX_TRACE_PARTICLE_SCREEN_FRACTION, MIN_TRACE_PARTICLE_SCREEN_FRACTION, PARTICLE_SIZE_RATIO,
     compute_trace_follow_distance_limits, compute_trace_particle_screen_fraction,
-    MAX_TRACE_PARTICLE_SCREEN_FRACTION, MIN_TRACE_PARTICLE_SCREEN_FRACTION,
-    PARTICLE_SIZE_RATIO,
 };
 use double_spacetime_simulator::ui_state::ParticleDisplayMode;
 
@@ -54,6 +53,7 @@ fn trace_particle_screen_fraction_round_trips_limits() {
 
 #[test]
 fn trace_particle_screen_fraction_uses_particle_size_ratio() {
-    let fraction = compute_trace_particle_screen_fraction(1.0, 1.0, true, ParticleDisplayMode::Glow);
+    let fraction =
+        compute_trace_particle_screen_fraction(1.0, 1.0, true, ParticleDisplayMode::Glow);
     assert!((fraction - PARTICLE_SIZE_RATIO).abs() < 1e-6);
 }

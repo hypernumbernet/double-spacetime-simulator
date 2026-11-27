@@ -236,11 +236,7 @@ impl GpuParticleSimulation {
     }
 
     /// Uploads CPU simulation particles into the mapped SSBO.
-    pub fn upload_from_cpu(
-        &mut self,
-        particles: &[Particle],
-        simulation_type: SimulationType,
-    ) {
+    pub fn upload_from_cpu(&mut self, particles: &[Particle], simulation_type: SimulationType) {
         self.particle_count = particles.len() as u32;
         if particles.is_empty() {
             return;

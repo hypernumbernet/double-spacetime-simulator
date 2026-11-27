@@ -118,9 +118,7 @@ pub fn galaxy_gravity_step_at_orientations(
         .iter()
         .enumerate()
         .filter(|(j, _)| *j != i)
-        .map(|(j, &q_j)| {
-            galaxy_gravity_pair_ln(q_i, q_j, masses[j], r_galaxy, time_g, epsilon)
-        })
+        .map(|(j, &q_j)| galaxy_gravity_pair_ln(q_i, q_j, masses[j], r_galaxy, time_g, epsilon))
         .sum()
 }
 
@@ -140,9 +138,7 @@ pub fn galaxy_gravity_step_at(
         .iter()
         .enumerate()
         .filter(|(j, _)| *j != i)
-        .map(|(j, &p_j)| {
-            galaxy_gravity_pair_chart(p_i, p_j, masses[j], r_galaxy, time_g, epsilon)
-        })
+        .map(|(j, &p_j)| galaxy_gravity_pair_chart(p_i, p_j, masses[j], r_galaxy, time_g, epsilon))
         .sum()
 }
 

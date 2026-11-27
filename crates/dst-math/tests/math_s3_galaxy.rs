@@ -181,7 +181,10 @@ fn gravity_attractive_within_galaxy_radius() {
     let v = quaternion_log(q_rel);
     let v_hat = v.normalize();
     let a = galaxy_gravity_pair_ln(q_i, q_j, 1e10, 10.0, 1.0, 1e-12);
-    assert!(a.dot(v_hat) > 0.0, "expected positive sign along v_hat, got {a:?}");
+    assert!(
+        a.dot(v_hat) > 0.0,
+        "expected positive sign along v_hat, got {a:?}"
+    );
 }
 
 #[test]
@@ -195,7 +198,10 @@ fn gravity_direction_along_ln_v_hat() {
     let v = quaternion_log(q_rel);
     let v_hat = v.normalize();
     let alignment = a.normalize().dot(v_hat);
-    assert!(alignment > 0.99, "acceleration should align with v_hat, got {alignment}");
+    assert!(
+        alignment > 0.99,
+        "acceleration should align with v_hat, got {alignment}"
+    );
 }
 
 #[test]
@@ -234,12 +240,19 @@ fn galaxy_gravity_step_at_orientations_matches_synced_positions() {
     let epsilon = 1e-12;
 
     for i in 0..orientations.len() {
-        let from_orientations =
-            galaxy_gravity_step_at_orientations(i, &orientations, &masses, r_galaxy, time_g, epsilon);
+        let from_orientations = galaxy_gravity_step_at_orientations(
+            i,
+            &orientations,
+            &masses,
+            r_galaxy,
+            time_g,
+            epsilon,
+        );
         let from_positions =
             galaxy_gravity_step_at(i, &positions, &masses, r_galaxy, time_g, epsilon);
         assert!(
-            (from_orientations - from_positions).length() < 1e-9 * from_positions.length().max(1e-30),
+            (from_orientations - from_positions).length()
+                < 1e-9 * from_positions.length().max(1e-30),
             "particle {i}: orientations {from_orientations:?}, positions {from_positions:?}"
         );
     }

@@ -1,7 +1,7 @@
 //! Integration tests for automatic landing autopilot.
 
 use pga_rocket::euclidean_pga::{motor_body_up_world, motor_from_pose};
-use pga_rocket::landing::{h_freefall_m, LandingAutopilot};
+use pga_rocket::landing::{LandingAutopilot, h_freefall_m};
 use pga_rocket::sim::{ControlCommand, RocketState, step_rocket};
 
 const DT: f64 = 1.0 / 120.0;
@@ -22,7 +22,10 @@ fn run_landing(mut state: RocketState, steps: usize) -> (RocketState, LandingAut
     (state, ap)
 }
 
-fn run_landing_impulse(mut state: RocketState, steps: usize) -> (RocketState, LandingAutopilot, f64) {
+fn run_landing_impulse(
+    mut state: RocketState,
+    steps: usize,
+) -> (RocketState, LandingAutopilot, f64) {
     let mut ap = LandingAutopilot::default();
     ap.enabled = true;
     let mut impulse = 0.0;
@@ -57,7 +60,10 @@ fn autopilot_uprights_tilted_hover() {
     let (state, ap) = run_landing(state, 8 * 120);
     let tilt = tilt_of(&state);
 
-    assert!(tilt < 0.12, "expected near-vertical attitude, tilt={tilt:.3} rad");
+    assert!(
+        tilt < 0.12,
+        "expected near-vertical attitude, tilt={tilt:.3} rad"
+    );
     assert!(state.altitude() > 10.0);
     assert!(!ap.complete);
     assert!(ap.attitude_locked || tilt < 0.10);
@@ -138,7 +144,10 @@ fn autopilot_recovers_tilt_then_lands() {
         state.lowest_foot_y(),
         ap.attitude_locked
     );
-    assert!(tilt < 0.25, "should not remain heavily tilted, tilt={tilt:.3}");
+    assert!(
+        tilt < 0.25,
+        "should not remain heavily tilted, tilt={tilt:.3}"
+    );
     assert!(!state.body_contacting || state.contacting);
 }
 
@@ -180,7 +189,11 @@ fn autopilot_survives_sideways_attitude() {
         "sideways start must not explode, impact={}",
         state.last_impact_speed
     );
-    assert!(ap.complete, "expected touchdown, h={}", state.lowest_foot_y());
+    assert!(
+        ap.complete,
+        "expected touchdown, h={}",
+        state.lowest_foot_y()
+    );
 }
 
 #[test]
@@ -197,7 +210,11 @@ fn autopilot_survives_inverted_attitude() {
         "inverted start must not explode, impact={}",
         state.last_impact_speed
     );
-    assert!(ap.complete, "expected touchdown, h={}", state.lowest_foot_y());
+    assert!(
+        ap.complete,
+        "expected touchdown, h={}",
+        state.lowest_foot_y()
+    );
 }
 
 #[test]
@@ -215,7 +232,11 @@ fn autopilot_survives_fast_fall_with_tilt() {
         "fast tilted fall must not explode, impact={}",
         state.last_impact_speed
     );
-    assert!(ap.complete, "expected touchdown, h={}", state.lowest_foot_y());
+    assert!(
+        ap.complete,
+        "expected touchdown, h={}",
+        state.lowest_foot_y()
+    );
 }
 
 #[test]
@@ -232,7 +253,11 @@ fn autopilot_survives_tumbling_entry() {
         "tumbling entry must not explode, impact={}",
         state.last_impact_speed
     );
-    assert!(ap.complete, "expected touchdown, h={}", state.lowest_foot_y());
+    assert!(
+        ap.complete,
+        "expected touchdown, h={}",
+        state.lowest_foot_y()
+    );
 }
 
 #[test]
@@ -265,9 +290,8 @@ fn l_mode_brake_upright_counter_limits_pendulum() {
     for _ in 0..(45 * 120) {
         let cmd = ap.update(&state, DT);
         let tilt = tilt_of(&state);
-        let vh = (state.velocity[0] * state.velocity[0]
-            + state.velocity[2] * state.velocity[2])
-            .sqrt();
+        let vh =
+            (state.velocity[0] * state.velocity[0] + state.velocity[2] * state.velocity[2]).sqrt();
 
         let s = if state.omega[0] > 0.05 {
             1
@@ -323,7 +347,11 @@ fn l_mode_lateral_decel_lands_intact() {
 
     let (state, ap) = run_landing(state, 50 * 120);
     assert!(!state.destroyed, "impact={}", state.last_impact_speed);
-    assert!(ap.complete, "expected touchdown, h={}", state.lowest_foot_y());
+    assert!(
+        ap.complete,
+        "expected touchdown, h={}",
+        state.lowest_foot_y()
+    );
     assert!(tilt_of(&state) < 0.15, "expected near-upright rest");
 }
 
@@ -331,14 +359,8 @@ fn l_mode_lateral_decel_lands_intact() {
 fn autopilot_high_alt_dive_then_brakes_on_speed_cap() {
     let alt = h_freefall_m(false) + 500.0;
     let mut state = RocketState::at_altitude(alt);
-    state.motor = pga_rocket::euclidean_pga::motor_from_pose(
-        0.0,
-        alt,
-        0.0,
-        std::f64::consts::PI,
-        0.0,
-        0.0,
-    );
+    state.motor =
+        pga_rocket::euclidean_pga::motor_from_pose(0.0, alt, 0.0, std::f64::consts::PI, 0.0, 0.0);
     state.velocity = [0.0, -20.0, 0.0];
     state.contacting = false;
 

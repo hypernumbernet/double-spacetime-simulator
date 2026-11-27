@@ -872,7 +872,9 @@ pub fn settle_lean_freedom(_vh: f64) -> f64 {
 /// Urgency from remaining settle time — opens lean when position or speed are bottlenecks.
 #[inline]
 pub fn settle_urgency(t_pos: f64, t_vh: f64) -> f64 {
-    (t_pos / 3.0).clamp(0.0, 1.0).max((t_vh / 3.0).clamp(0.0, 1.0))
+    (t_pos / 3.0)
+        .clamp(0.0, 1.0)
+        .max((t_vh / 3.0).clamp(0.0, 1.0))
 }
 
 /// Effective lean freedom: speed-based floor opened by settle urgency.

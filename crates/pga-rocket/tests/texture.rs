@@ -11,7 +11,11 @@ use pga_rocket::texture::{
 fn grass_tile_size_and_rgba_length() {
     let px = generate_grass_pixels();
     let expected = (GROUND_TILE_PX * GROUND_TILE_PX * 4) as usize;
-    assert_eq!(px.len(), expected, "grass RGBA length must match GROUND_TILE_PX");
+    assert_eq!(
+        px.len(),
+        expected,
+        "grass RGBA length must match GROUND_TILE_PX"
+    );
     assert!(
         GROUND_TILE_PX >= 64,
         "open-world grass must not be the old 16×16 stamp, got {}",
@@ -48,7 +52,11 @@ fn grass_mean_is_green_dominant() {
         "grass mean should be green-dominant, got {:?}",
         m
     );
-    assert!(m[1] > 0.25 && m[1] < 0.75, "grass green in meadow gamut, {:?}", m);
+    assert!(
+        m[1] > 0.25 && m[1] < 0.75,
+        "grass green in meadow gamut, {:?}",
+        m
+    );
     assert!(m[0] > 0.10 && m[0] < 0.55, "grass red channel, {:?}", m);
 }
 
@@ -56,7 +64,10 @@ fn grass_mean_is_green_dominant() {
 fn moon_mean_is_gray_regolith() {
     let m = mean_rgb(&generate_moon_pixels());
     // Lunar dust: channels close, mid-gray, not green meadow.
-    let spread = (m[0] - m[1]).abs().max((m[1] - m[2]).abs()).max((m[0] - m[2]).abs());
+    let spread = (m[0] - m[1])
+        .abs()
+        .max((m[1] - m[2]).abs())
+        .max((m[0] - m[2]).abs());
     assert!(
         spread < 0.08,
         "moon regolith should be near-neutral gray, mean={:?} spread={}",

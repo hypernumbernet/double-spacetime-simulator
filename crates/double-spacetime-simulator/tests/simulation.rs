@@ -1,12 +1,10 @@
 use double_spacetime_simulator::object_input::ObjectInput;
 use double_spacetime_simulator::simulation::{
-    EPSILON, G, LIGHT_SPEED, Particle, SimulationManager, clamp_scalar_speed_m_s, clamp_velocity_m_s,
-    max_subluminal_speed_m_s,
+    EPSILON, G, LIGHT_SPEED, Particle, SimulationManager, clamp_scalar_speed_m_s,
+    clamp_velocity_m_s, max_subluminal_speed_m_s,
 };
 use double_spacetime_simulator::ui_state::SimulationType as UiSimType;
-use dst_math::gravity::{
-    gravitational_potential_at, k_scale_from_light_speed, time_dilation,
-};
+use dst_math::gravity::{gravitational_potential_at, k_scale_from_light_speed, time_dilation};
 use glam::DVec3;
 
 fn total_energy(particles: &[Particle]) -> f64 {
@@ -34,7 +32,10 @@ fn clamp_scalar_speed_m_s_leaves_subluminal_unchanged() {
 
 #[test]
 fn clamp_scalar_speed_m_s_caps_at_subluminal_fraction() {
-    assert_eq!(clamp_scalar_speed_m_s(LIGHT_SPEED), max_subluminal_speed_m_s());
+    assert_eq!(
+        clamp_scalar_speed_m_s(LIGHT_SPEED),
+        max_subluminal_speed_m_s()
+    );
     assert_eq!(
         clamp_scalar_speed_m_s(LIGHT_SPEED * 2.0),
         max_subluminal_speed_m_s()
@@ -59,7 +60,8 @@ fn create_simulation_lorentz_with_superluminal_velocity_std_stays_finite() {
         mass_range: (1e28, 1e29),
         velocity_std: LIGHT_SPEED,
     };
-    let state = SimulationManager::create_simulation(ic, UiSimType::LorentzTransformation, 16, 1e10);
+    let state =
+        SimulationManager::create_simulation(ic, UiSimType::LorentzTransformation, 16, 1e10);
     let particles = match state {
         double_spacetime_simulator::simulation::SimulationState::LorentzTransformation(s) => {
             s.particles
@@ -256,11 +258,11 @@ fn cull_galaxy_by_angle_removes_particles_beyond_threshold() {
 
     let mgr = dst_galaxy_manager(
         vec![
-            galaxy_particle_at_angle(0.1),               // keep
-            galaxy_particle_at_angle(FRAC_PI_2 - 0.01),  // keep (just under)
-            galaxy_particle_at_angle(FRAC_PI_2 + 0.01),  // cull
-            galaxy_particle_at_angle(2.5),               // cull
-            galaxy_particle_at_angle(PI - 0.01),         // cull (near antipode)
+            galaxy_particle_at_angle(0.1),              // keep
+            galaxy_particle_at_angle(FRAC_PI_2 - 0.01), // keep (just under)
+            galaxy_particle_at_angle(FRAC_PI_2 + 0.01), // cull
+            galaxy_particle_at_angle(2.5),              // cull
+            galaxy_particle_at_angle(PI - 0.01),        // cull (near antipode)
         ],
         1e10,
     );
@@ -299,12 +301,7 @@ fn dst_gravity_weak_field_attracts_via_update() {
     let mgr = dst_gravity_manager(
         vec![
             Particle::from_kinematics(DVec3::ZERO, DVec3::ZERO, mass, [1.0; 4]),
-            Particle::from_kinematics(
-                DVec3::new(1.0e11, 0.0, 0.0),
-                DVec3::ZERO,
-                mass,
-                [1.0; 4],
-            ),
+            Particle::from_kinematics(DVec3::new(1.0e11, 0.0, 0.0), DVec3::ZERO, mass, [1.0; 4]),
         ],
         scale,
     );
@@ -349,7 +346,8 @@ fn dst_gravity_updates_proper_time_and_lambda_eff() {
         test.lambda_eff
     );
     assert!(
-        (test.proper_time - expected_proper_time).abs() < 1e-12 * expected_proper_time.abs().max(1.0),
+        (test.proper_time - expected_proper_time).abs()
+            < 1e-12 * expected_proper_time.abs().max(1.0),
         "proper_time={} expected={expected_proper_time}",
         test.proper_time
     );
@@ -367,12 +365,7 @@ fn dst_gravity_reverses_when_time_dilation_negative() {
     let mgr = dst_gravity_manager(
         vec![
             Particle::from_kinematics(DVec3::ZERO, DVec3::ZERO, central_mass, [1.0; 4]),
-            Particle::from_kinematics(
-                DVec3::new(separation, 0.0, 0.0),
-                DVec3::ZERO,
-                1.0,
-                [1.0; 4],
-            ),
+            Particle::from_kinematics(DVec3::new(separation, 0.0, 0.0), DVec3::ZERO, 1.0, [1.0; 4]),
         ],
         scale,
     );
@@ -413,7 +406,11 @@ fn dst_gravity_random_sphere_stays_finite_short_run() {
     for frame in 1..=25 {
         mgr.advance(10.0);
         for p in mgr.particles() {
-            assert!(p.position.x.is_finite(), "diverged frame {frame} pos={:?}", p.position);
+            assert!(
+                p.position.x.is_finite(),
+                "diverged frame {frame} pos={:?}",
+                p.position
+            );
             assert!(p.velocity.x.is_finite());
         }
     }

@@ -55,7 +55,10 @@ fn clamp_velocity_inputs_caps_superluminal_when_relativistic() {
     ui.clamp_velocity_inputs();
     assert_eq!(ui.single_particle.velocity.x, max_subluminal_speed_m_s());
     assert_eq!(ui.random_sphere.velocity_std, max_subluminal_speed_m_s());
-    assert_eq!(ui.elliptical_orbit.planetary_speed, max_subluminal_speed_m_s());
+    assert_eq!(
+        ui.elliptical_orbit.planetary_speed,
+        max_subluminal_speed_m_s()
+    );
 }
 
 #[test]

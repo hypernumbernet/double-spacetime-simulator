@@ -322,11 +322,7 @@ pub fn show_closable_window(
     }
     let mut panel_open = is_open;
     configure(egui::Window::new(title).open(&mut panel_open)).show(ctx, add_contents);
-    if sync_close {
-        panel_open
-    } else {
-        is_open
-    }
+    if sync_close { panel_open } else { is_open }
 }
 
 fn panel_slider_track_width(row_width: f32, value_reserve: f32, spacing: f32) -> f32 {

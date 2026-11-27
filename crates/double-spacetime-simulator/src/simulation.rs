@@ -6,9 +6,7 @@ use std::sync::{Arc, RwLock};
 use crate::object_input::ObjectInput;
 use crate::particle_snapshot::ParticleSnapshot;
 use crate::ui_state::SimulationType;
-use dst_math::gravity::{
-    dst_gravity_step_at, k_scale_from_light_speed, newtonian_gravity_pair,
-};
+use dst_math::gravity::{dst_gravity_step_at, k_scale_from_light_speed, newtonian_gravity_pair};
 use dst_math::s3_galaxy::{
     galaxy_gravity_step_at_orientations, galaxy_radius_sim, integrate_orientation,
     orientation_from_disk_position, orientation_to_display_position, s3_angle_from_origin,
@@ -138,12 +136,7 @@ pub struct Particle {
 
 impl Particle {
     /// Creates a particle with zero momentum (momentum-based simulators fill this on reset).
-    pub fn from_kinematics(
-        position: DVec3,
-        velocity: DVec3,
-        mass: f64,
-        color: [f32; 4],
-    ) -> Self {
+    pub fn from_kinematics(position: DVec3, velocity: DVec3, mass: f64, color: [f32; 4]) -> Self {
         Self {
             position,
             velocity,
@@ -243,8 +236,7 @@ impl SimulationEngine for SimulationSpeedOfLightLimit {
                 }
                 particle.momentum += impulse;
                 let ls = LIGHT_SPEED / self.scale;
-                particle.velocity =
-                    velocity_from_momentum(particle.momentum, particle.mass, ls);
+                particle.velocity = velocity_from_momentum(particle.momentum, particle.mass, ls);
             });
     }
 
@@ -252,14 +244,9 @@ impl SimulationEngine for SimulationSpeedOfLightLimit {
     fn advance_time(&mut self, delta_seconds: f64) {
         let ls = LIGHT_SPEED / self.scale;
         self.particles.par_iter_mut().for_each(|particle| {
-            particle.position += position_delta_from_momentum(
-                particle.momentum,
-                particle.mass,
-                ls,
-                delta_seconds,
-            );
-            particle.velocity =
-                velocity_from_momentum(particle.momentum, particle.mass, ls);
+            particle.position +=
+                position_delta_from_momentum(particle.momentum, particle.mass, ls, delta_seconds);
+            particle.velocity = velocity_from_momentum(particle.momentum, particle.mass, ls);
         });
     }
 }
@@ -321,11 +308,7 @@ impl SimulationEngine for SimulationDstGravity {
     }
 }
 
-fn dst_galaxy_velocity_update(
-    particles: &mut [Particle],
-    delta_seconds: f64,
-    galaxy_radius: f64,
-) {
+fn dst_galaxy_velocity_update(particles: &mut [Particle], delta_seconds: f64, galaxy_radius: f64) {
     let orientations: Vec<DQuat> = particles.iter().map(|p| p.orientation).collect();
     let masses: Vec<f64> = particles.iter().map(|p| p.mass).collect();
     let time_g = G * delta_seconds;
@@ -343,12 +326,8 @@ fn dst_galaxy_velocity_update(
                 EPSILON,
             );
             particle.velocity += delta_v;
-            particle.orientation = integrate_orientation(
-                particle.orientation,
-                delta_v,
-                galaxy_radius,
-                delta_seconds,
-            );
+            particle.orientation =
+                integrate_orientation(particle.orientation, delta_v, galaxy_radius, delta_seconds);
             particle.position =
                 orientation_to_display_position(particle.orientation, galaxy_radius);
         });
@@ -518,8 +497,7 @@ impl SimulationManager {
                     particle.orientation =
                         orientation_from_disk_position(particle.position, r_galaxy);
                 }
-                particle.position =
-                    orientation_to_display_position(particle.orientation, r_galaxy);
+                particle.position = orientation_to_display_position(particle.orientation, r_galaxy);
             }
         }
         if simulation_type.uses_rapidity_particles() {
@@ -550,13 +528,11 @@ impl SimulationManager {
             SimulationType::DstGravity => {
                 SimulationState::DstGravity(SimulationDstGravity { particles, scale })
             }
-            SimulationType::DstGalaxy => {
-                SimulationState::DstGalaxy(SimulationDstGalaxy {
-                    particles,
-                    scale,
-                    galaxy_radius: galaxy_radius_sim(scale),
-                })
-            }
+            SimulationType::DstGalaxy => SimulationState::DstGalaxy(SimulationDstGalaxy {
+                particles,
+                scale,
+                galaxy_radius: galaxy_radius_sim(scale),
+            }),
         }
     }
 
@@ -656,16 +632,10 @@ impl SimulationManager {
 
     /// Replaces current simulation state with particles from a saved snapshot.
     pub fn load_from_snapshot(&self, snapshot: ParticleSnapshot) {
-        let particles = Self::prepare_particles(
-            snapshot.particles,
-            snapshot.simulation_type,
-            snapshot.scale,
-        );
-        *self.state.write().unwrap() = Self::state_from_particles(
-            snapshot.simulation_type,
-            particles,
-            snapshot.scale,
-        );
+        let particles =
+            Self::prepare_particles(snapshot.particles, snapshot.simulation_type, snapshot.scale);
+        *self.state.write().unwrap() =
+            Self::state_from_particles(snapshot.simulation_type, particles, snapshot.scale);
     }
 
     /// Appends particles generated from object input, centered at `center * base_scale * Correct.m`.

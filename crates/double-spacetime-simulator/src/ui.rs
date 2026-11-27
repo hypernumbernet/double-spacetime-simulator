@@ -423,7 +423,11 @@ pub(crate) fn resolve_trace_particle_for_camera(
 ///
 /// Displays live position and velocity resolved each frame from simulation state.
 /// Closing the window clears the selection so later picks always start from a clean state.
-fn particle_info_window(ctx: &egui::Context, uis: &mut UiState, selection: Option<(usize, Particle)>) {
+fn particle_info_window(
+    ctx: &egui::Context,
+    uis: &mut UiState,
+    selection: Option<(usize, Particle)>,
+) {
     let Some((index, particle)) = selection else {
         return;
     };
@@ -990,7 +994,11 @@ pub(crate) fn process_pending_particle_delete(
         };
         (index, uis.uses_gpu_simulation())
     };
-    if !simulation_manager.write().unwrap().remove_particle_at(index) {
+    if !simulation_manager
+        .write()
+        .unwrap()
+        .remove_particle_at(index)
+    {
         return;
     }
     {

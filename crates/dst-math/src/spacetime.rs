@@ -387,7 +387,9 @@ pub fn momentum_from_velocity(velocity: DVec3, mass: f64, speed_of_light: f64) -
     if speed_squared == 0.0 {
         return DVec3::ZERO;
     }
-    let gamma = (1.0 - speed_squared / (speed_of_light * speed_of_light)).recip().sqrt();
+    let gamma = (1.0 - speed_squared / (speed_of_light * speed_of_light))
+        .recip()
+        .sqrt();
     mass * velocity * gamma
 }
 

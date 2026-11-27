@@ -171,11 +171,7 @@ pub fn show_closable_window(
     }
     let mut panel_open = is_open;
     configure(egui::Window::new(title).open(&mut panel_open)).show(ctx, add_contents);
-    if sync_close {
-        panel_open
-    } else {
-        is_open
-    }
+    if sync_close { panel_open } else { is_open }
 }
 
 pub use vulkanvil::{draw_spacecraft_steer_marker, draw_spacecraft_yaw_steer_marker};

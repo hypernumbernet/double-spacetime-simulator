@@ -1,14 +1,16 @@
 use crate::gpu_simulation::{GpuParticleSimulation, create_particle_descriptor_set_layout};
 use crate::integration::Gui;
 use crate::particle_selection_marker::{
-    BRACKET_RADIUS_RATIO, MIN_HALF_SIZE_PX, SELECTION_MARKER_VERTEX_COUNT,
-    selection_index_bits,
+    BRACKET_RADIUS_RATIO, MIN_HALF_SIZE_PX, SELECTION_MARKER_VERTEX_COUNT, selection_index_bits,
 };
 use crate::simulation::Particle;
 use crate::trace_follow::PARTICLE_SIZE_RATIO;
 use crate::ui_state::*;
 use ash::vk;
-use glam::{Mat4, Vec3, Vec4};
+use glam::{
+    Mat4, Vec3, Vec4,
+    camera::rh::{proj::directx::perspective, view::look_at_mat4},
+};
 use gpu_allocator::vulkan::Allocator;
 use std::sync::{Arc, Mutex};
 use vulkanvil::{
@@ -212,11 +214,7 @@ impl ParticleRenderPipeline {
     }
 
     /// Reads back GPU particle state for snapshot export.
-    pub fn readback_particles(
-        &self,
-        simulation_type: SimulationType,
-        scale: f64,
-    ) -> Vec<Particle> {
+    pub fn readback_particles(&self, simulation_type: SimulationType, scale: f64) -> Vec<Particle> {
         self.gpu_sim.readback_to_cpu(simulation_type, scale)
     }
 
@@ -431,9 +429,7 @@ impl ParticleRenderPipeline {
         if self.add_center_marker_vertex_count > 0 {
             if let Some(ref buf) = self.add_center_marker_buffer {
                 let add_center_pc = AxesPushConstants {
-                    view_proj: self
-                        .compute_mvp_axes(aspect_ratio)
-                        .to_cols_array_2d(),
+                    view_proj: self.compute_mvp_axes(aspect_ratio).to_cols_array_2d(),
                 };
                 self.draw_axes_lines(
                     command_buffer,
@@ -696,7 +692,8 @@ impl ParticleRenderPipeline {
                 0,
                 bytemuck::bytes_of(pc),
             );
-            self.device.cmd_draw(cb, SELECTION_MARKER_VERTEX_COUNT, 1, 0, 0);
+            self.device
+                .cmd_draw(cb, SELECTION_MARKER_VERTEX_COUNT, 1, 0, 0);
         }
     }
 
@@ -750,15 +747,15 @@ impl ParticleRenderPipeline {
 
     /// Computes model-view-projection transform for axes and helper geometry.
     fn compute_mvp_axes(&self, aspect_ratio: f32) -> Mat4 {
-        let view = Mat4::look_at_rh(self.camera.position, self.camera.target, self.camera.up);
-        let proj = Mat4::perspective_rh(std::f32::consts::FRAC_PI_4, aspect_ratio, 0.1, 100.0);
+        let view = look_at_mat4(self.camera.position, self.camera.target, self.camera.up);
+        let proj = perspective(std::f32::consts::FRAC_PI_4, aspect_ratio, 0.1, 100.0);
         proj * view
     }
 
     /// Computes model-view-projection transform for particle-space rendering.
     fn compute_mvp_particle(&self, aspect_ratio: f32, scale_factor: f32) -> Mat4 {
-        let view = Mat4::look_at_rh(self.camera.position, self.camera.target, self.camera.up);
-        let proj = Mat4::perspective_rh(std::f32::consts::FRAC_PI_4, aspect_ratio, 0.1, 100.0);
+        let view = look_at_mat4(self.camera.position, self.camera.target, self.camera.up);
+        let proj = perspective(std::f32::consts::FRAC_PI_4, aspect_ratio, 0.1, 100.0);
         let model = Mat4::from_scale(Vec3::splat(scale_factor));
         proj * view * model
     }
@@ -803,7 +800,8 @@ impl Drop for ParticleRenderPipeline {
                 self.device.destroy_pipeline(*pipeline, None);
             }
             self.device.destroy_pipeline_layout(self.layout_axes, None);
-            self.device.destroy_pipeline_layout(self.layout_selection, None);
+            self.device
+                .destroy_pipeline_layout(self.layout_selection, None);
             self.device
                 .destroy_pipeline_layout(self.layout_particles, None);
             self.device

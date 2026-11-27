@@ -4,7 +4,7 @@ use pga_rocket::euclidean_pga::{
     extract_point, motor_from_pose, motor_translation, point, translator,
 };
 use pga_rocket::sim::{
-    ControlCommand, RocketParams, RocketState, engine_wrench, rcs_wrench, step_rocket, GRAVITY,
+    ControlCommand, GRAVITY, RocketParams, RocketState, engine_wrench, rcs_wrench, step_rocket,
 };
 
 const DT: f64 = 1.0 / 120.0;
@@ -507,8 +507,7 @@ fn soft_ground_contact_does_not_destroy() {
         assert!(
             !s.destroyed,
             "soft landing should survive, vy={} impact={}",
-            s.velocity[1],
-            s.last_impact_speed
+            s.velocity[1], s.last_impact_speed
         );
     }
 }
@@ -524,7 +523,10 @@ fn direct_high_speed_impact_triggers_explosion() {
             break;
         }
     }
-    assert!(s.destroyed, "12 m/s descent should exceed 10 m/s crash threshold");
+    assert!(
+        s.destroyed,
+        "12 m/s descent should exceed 10 m/s crash threshold"
+    );
     assert!(s.last_impact_speed >= 10.0);
 }
 
@@ -587,7 +589,10 @@ fn air_drag_stronger_at_higher_ground_speed() {
     step_rocket(&mut fast, DT);
     let fast_loss = fast_vx0 - fast.velocity[0];
 
-    assert!(slow_loss > 0.0, "slow case should decelerate, loss={slow_loss}");
+    assert!(
+        slow_loss > 0.0,
+        "slow case should decelerate, loss={slow_loss}"
+    );
     assert!(
         fast_loss > slow_loss * 2.0,
         "higher ground speed should lose more per step: slow={slow_loss} fast={fast_loss}"
@@ -604,7 +609,11 @@ fn air_drag_k_matches_realistic_ballistic_coeff() {
     // Default params should use the same scale (not the old gamey k≈5).
     let p = RocketParams::default();
     assert!((p.air_drag_k - k).abs() < 1e-12);
-    assert!(p.air_drag_k < 0.5, "k should be O(0.1), got {}", p.air_drag_k);
+    assert!(
+        p.air_drag_k < 0.5,
+        "k should be O(0.1), got {}",
+        p.air_drag_k
+    );
     // At 50 m/s, drag/weight should be a few percent (launch-vehicle-like).
     let drag = p.air_drag_k * 50.0 * 50.0;
     let weight = mass * GRAVITY;
@@ -633,7 +642,10 @@ fn air_drag_weaker_at_high_altitude() {
     step_rocket(&mut high, DT);
     let high_loss = vx0 - high.velocity[0];
 
-    assert!(low_loss > 0.0, "sea-level drag should decelerate, loss={low_loss}");
+    assert!(
+        low_loss > 0.0,
+        "sea-level drag should decelerate, loss={low_loss}"
+    );
     assert!(
         high_loss < low_loss,
         "drag at 500 m should be weaker than at sea level: low={low_loss} high={high_loss}"

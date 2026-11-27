@@ -3,7 +3,7 @@
 use pga_rocket::euclidean_pga::motor_from_pose;
 use pga_rocket::sim::{RocketState, step_rocket};
 use pga_rocket::target_landing::{
-    inside_target_pad, CLIMB_ALT_M, TargetLandingAutopilot, TargetPhase, TARGET_PAD_HALF_M,
+    CLIMB_ALT_M, TARGET_PAD_HALF_M, TargetLandingAutopilot, TargetPhase, inside_target_pad,
 };
 
 const DT: f64 = 1.0 / 120.0;

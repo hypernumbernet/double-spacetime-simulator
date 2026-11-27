@@ -78,14 +78,8 @@ mod particle_info_format {
 
     #[test]
     fn extra_decimals_are_truncated_not_rounded() {
-        assert_eq!(
-            format_particle_info_value(1.99999999999),
-            "1.9999999999"
-        );
-        assert_eq!(
-            format_particle_info_value(-3.141592653589),
-            "-3.1415926535"
-        );
+        assert_eq!(format_particle_info_value(1.99999999999), "1.9999999999");
+        assert_eq!(format_particle_info_value(-3.141592653589), "-3.1415926535");
     }
 
     #[test]

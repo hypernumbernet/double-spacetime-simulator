@@ -40,9 +40,9 @@
 
 use crate::euclidean_pga::{motor_inverse_rotate_vector, world_up_in_body};
 use crate::fuzzy::{
+    FreefallThrottleFuzzy, LandingThrottleFuzzy, LeanAimFuzzy, PhysicsPadThrottleFuzzy,
     attitude_gain_scales, blend_desired_axis, blend_vec3, flip_aim_weight, freefall_overspeed_mu,
-    freefall_v_cap, lean_max_nominal, ramp_down, FreefallThrottleFuzzy, LandingThrottleFuzzy,
-    LeanAimFuzzy, PhysicsPadThrottleFuzzy, slew_throttle,
+    freefall_v_cap, lean_max_nominal, ramp_down, slew_throttle,
 };
 use crate::sim::{ControlCommand, GRAVITY, RocketState};
 
@@ -375,18 +375,17 @@ impl LandingAutopilot {
 
         // While tilted the feet are not the lowest structure; run the burn
         // envelope on the true lowest hull point so an inverted fall brakes early.
-        let h_env = if tilt > TILT_PROBE { state.lowest_probe_y() } else { h };
+        let h_env = if tilt > TILT_PROBE {
+            state.lowest_probe_y()
+        } else {
+            h
+        };
         let pad_settle = state.contacting && on_pad;
         let omega_py = (omega[0] * omega[0] + omega[2] * omega[2]).sqrt();
 
         // Free-field L-mode: explicit brake lean → upright counter (no trim skip).
         // Only in the moderate-tilt band — flip / tumble use the normal lean blend.
-        let lat_settle_enabled = lat_settle_enabled(
-            tilt,
-            up_y,
-            omega_py,
-            self.lat_settle_phase,
-        );
+        let lat_settle_enabled = lat_settle_enabled(tilt, up_y, omega_py, self.lat_settle_phase);
         if !has_pad && lat_settle_enabled {
             if self.lat_settle_sync {
                 self.lat_settle_phase = if l_needs_brake(vh, v_down, vh_touch) {
@@ -417,9 +416,8 @@ impl LandingAutopilot {
             self.upright_stable_s = 0.0;
         }
 
-        let upright_counter = !has_pad
-            && lat_settle_enabled
-            && self.lat_settle_phase == LatSettlePhase::Upright;
+        let upright_counter =
+            !has_pad && lat_settle_enabled && self.lat_settle_phase == LatSettlePhase::Upright;
 
         // Desired body +Y: pad settle / upright counter are hard upright;
         // high-altitude freefall uses a relaxed deadzone upright; otherwise
@@ -469,12 +467,7 @@ impl LandingAutopilot {
                 pos_x: pos[0],
                 pos_z: pos[2],
             };
-            let lat_tilt = brake_safe_lean(
-                lean_max_nominal(&lean_in),
-                v_down,
-                h_env,
-                a_lift,
-            );
+            let lat_tilt = brake_safe_lean(lean_max_nominal(&lean_in), v_down, h_env, a_lift);
             let lean_desired = clamp_tilt(blend_desired_axis(&lean_in), lat_tilt);
             // Soft flip: blend lean aim toward pure world-up as tilt → TILT_AIM.
             let w_flip = flip_aim_weight(tilt, TILT_AIM);
@@ -483,7 +476,10 @@ impl LandingAutopilot {
             } else if w_flip <= 1e-9 {
                 lean_desired
             } else {
-                clamp_tilt(blend_vec3(lean_desired, [0.0, 1.0, 0.0], w_flip), lat_tilt.max(0.05))
+                clamp_tilt(
+                    blend_vec3(lean_desired, [0.0, 1.0, 0.0], w_flip),
+                    lat_tilt.max(0.05),
+                )
             };
             let d = motor_inverse_rotate_vector(&state.motor, desired);
             axis_angle_from_cross([d[2], 0.0, -d[0]], d[1].clamp(-1.0, 1.0))
@@ -504,22 +500,11 @@ impl LandingAutopilot {
                 && attitude_busy);
         // Authority throttle uses the nominal (non-soft) rate error — do not
         // derive it from saturated gimbal commands.
-        let w_mag_auth = (kp * angle)
-            .min((2.0 * alpha * angle).sqrt())
-            .min(w_cap);
+        let w_mag_auth = (kp * angle).min((2.0 * alpha * angle).sqrt()).min(w_cap);
         let rate_err_x = omega[0] - axis[0] * w_mag_auth;
         let rate_err_z = omega[2] - axis[2] * w_mag_auth;
-        let (pitch, yaw, roll) = attitude_gimbal_pd(
-            axis,
-            angle,
-            omega,
-            kp,
-            kd,
-            kd_roll,
-            alpha,
-            w_cap,
-            soft_att,
-        );
+        let (pitch, yaw, roll) =
+            attitude_gimbal_pd(axis, angle, omega, kp, kd, kd_roll, alpha, w_cap, soft_att);
 
         update_lock_latch(&mut self.attitude_locked, tilt, omega_sq, vh_sq);
 
@@ -587,14 +572,7 @@ impl LandingAutopilot {
         };
 
         let throttle = if high_freefall {
-            high_alt_freefall_l_throttle(
-                alt,
-                v_down,
-                up_y,
-                vh,
-                t_auth,
-                state.moon_mode,
-            )
+            high_alt_freefall_l_throttle(alt, v_down, up_y, vh, t_auth, state.moon_mode)
         } else if state.contacting && vh > vh_touch {
             // Skidding on the pad: thrust while tilted becomes a rocket sled.
             // Keep weight on the feet and let Coulomb friction stop the slide.
@@ -618,19 +596,17 @@ impl LandingAutopilot {
             // During a deliberate lean this is the vertical-neutral kill burn:
             // hover/up_y keeps altitude while the lateral component eats drift.
             let leaning = tilt > ERR_PHASE;
-            let t_support = if (attitude_busy || leaning)
-                && up_y >= UPY_AUTH
-                && h_env <= h_need + 12.0
-            {
-                let lo = hover_cmd * 0.92;
-                let hi = (hover_cmd * 1.25).min(1.0);
-                // Mild rate damping along body +Y (sandwich-transported velocity).
-                // While leaning, lateral drift shows up in this term and lifts the
-                // hover slightly — buying time aloft to finish the drift kill.
-                (hover_cmd - 0.08 * v_body[1]).clamp(lo, hi)
-            } else {
-                0.0
-            };
+            let t_support =
+                if (attitude_busy || leaning) && up_y >= UPY_AUTH && h_env <= h_need + 12.0 {
+                    let lo = hover_cmd * 0.92;
+                    let hi = (hover_cmd * 1.25).min(1.0);
+                    // Mild rate damping along body +Y (sandwich-transported velocity).
+                    // While leaning, lateral drift shows up in this term and lifts the
+                    // hover slightly — buying time aloft to finish the drift kill.
+                    (hover_cmd - 0.08 * v_body[1]).clamp(lo, hi)
+                } else {
+                    0.0
+                };
             // Bang magnitude when fully engaged (membership applies in fuzzy layer).
             let t_brake_cmd = BURN_PLAN_FRAC + (v_down - V_TOUCH).max(0.0) * 0.015;
             // Lateral thrust authority for high pad-seek, or near-pad drift kill
@@ -746,9 +722,8 @@ impl LandingAutopilot {
         // Complete / settle on the painted platform; seek still uses cheby vs center.
         let on_pad = on_pad_square(pos, target_xz);
         let cheby = chebyshev_xz(pos, target_xz);
-        let seeking_center = !state.contacting
-            && h > CENTER_SEEK_MIN_H
-            && cheby > TARGET_CENTER_TOL_M;
+        let seeking_center =
+            !state.contacting && h > CENTER_SEEK_MIN_H && cheby > TARGET_CENTER_TOL_M;
         let terminal_commit = !state.contacting && h <= CENTER_SEEK_MIN_H;
         let vh_touch = VH_TOUCH_PAD;
 
@@ -759,9 +734,8 @@ impl LandingAutopilot {
         };
         let pad_settle = state.contacting && on_pad;
         // Low terminal: commit to pure upright once horizontal motion is modest.
-        let force_upright = terminal_commit
-            && !seeking_center
-            && (h <= H_TERMINAL + 10.0 || vh <= vh_touch * 1.25);
+        let force_upright =
+            terminal_commit && !seeking_center && (h <= H_TERMINAL + 10.0 || vh <= vh_touch * 1.25);
 
         let (axis, angle) = if pad_settle || force_upright {
             axis_angle_from_cross([up_body[2], 0.0, -up_body[0]], up_y)
@@ -796,7 +770,11 @@ impl LandingAutopilot {
                 h_terminal: H_TERMINAL,
                 k_pos: K_POS_TARGET,
                 k_vel: K_VEL_TARGET,
-                target_xz: if seeking_center { Some(target_xz) } else { None },
+                target_xz: if seeking_center {
+                    Some(target_xz)
+                } else {
+                    None
+                },
                 pos_x: pos[0],
                 pos_z: pos[2],
             };
@@ -808,14 +786,21 @@ impl LandingAutopilot {
             } else if w_flip <= 1e-9 {
                 lean_desired
             } else {
-                clamp_tilt(blend_vec3(lean_desired, [0.0, 1.0, 0.0], w_flip), lat_tilt.max(0.05))
+                clamp_tilt(
+                    blend_vec3(lean_desired, [0.0, 1.0, 0.0], w_flip),
+                    lat_tilt.max(0.05),
+                )
             };
             let d = motor_inverse_rotate_vector(&state.motor, desired);
             axis_angle_from_cross([d[2], 0.0, -d[0]], d[1].clamp(-1.0, 1.0))
         };
 
         let g = attitude_gain_scales(state.contacting, on_pad, h);
-        let upright_boost = if terminal_commit && h < 30.0 { 1.2 } else { 1.0 };
+        let upright_boost = if terminal_commit && h < 30.0 {
+            1.2
+        } else {
+            1.0
+        };
         let soft_ff = 1.0;
         let kp = self.kp_attitude * g.kp * upright_boost * soft_ff;
         let kd = self.kd_attitude * g.kd * upright_boost * soft_ff;
@@ -1007,18 +992,11 @@ fn attitude_gimbal_pd(
 ) -> (f64, f64, f64) {
     let omega_xy = (omega[0] * omega[0] + omega[2] * omega[2]).sqrt();
     let (kp, kd, w_cap, rate_kill) = if soft {
-        (
-            kp * 0.55,
-            kd * 1.35,
-            w_cap * 0.45,
-            OMEGA_RATE_KILL * 0.45,
-        )
+        (kp * 0.55, kd * 1.35, w_cap * 0.45, OMEGA_RATE_KILL * 0.45)
     } else {
         (kp, kd, w_cap, OMEGA_RATE_KILL)
     };
-    let w_cmd = (kp * angle)
-        .min((2.0 * alpha * angle).sqrt())
-        .min(w_cap);
+    let w_cmd = (kp * angle).min((2.0 * alpha * angle).sqrt()).min(w_cap);
     let w_cmd = if soft {
         w_cmd.min((w_cap - 0.4 * omega_xy).max(0.0))
     } else {
@@ -1037,14 +1015,13 @@ fn attitude_gimbal_pd(
 
 fn update_lock_latch(locked: &mut bool, tilt: f64, omega_sq: f64, vh_sq: f64) {
     if *locked {
-        if tilt > TILT_UNLOCK || omega_sq > OMEGA_UNLOCK * OMEGA_UNLOCK || vh_sq > VH_UNLOCK * VH_UNLOCK
+        if tilt > TILT_UNLOCK
+            || omega_sq > OMEGA_UNLOCK * OMEGA_UNLOCK
+            || vh_sq > VH_UNLOCK * VH_UNLOCK
         {
             *locked = false;
         }
-    } else if tilt < TILT_LOCK
-        && omega_sq < OMEGA_LOCK * OMEGA_LOCK
-        && vh_sq < VH_LOCK * VH_LOCK
-    {
+    } else if tilt < TILT_LOCK && omega_sq < OMEGA_LOCK * OMEGA_LOCK && vh_sq < VH_LOCK * VH_LOCK {
         *locked = true;
     }
 }
@@ -1163,7 +1140,9 @@ fn freefall_min_upy_desired(d_base: [f64; 3], upy_req: f64) -> [f64; 3] {
     let mut hi = 1.0;
     for _ in 0..24 {
         let w = 0.5 * (lo + hi);
-        let ny = normalize3(blend_vec3(base, up, w)).map(|n| n[1]).unwrap_or(1.0);
+        let ny = normalize3(blend_vec3(base, up, w))
+            .map(|n| n[1])
+            .unwrap_or(1.0);
         if ny >= upy_req {
             hi = w;
         } else {
@@ -1250,7 +1229,13 @@ fn high_alt_freefall_l_throttle(
 }
 
 /// High-altitude freefall vertical throttle via [`FreefallThrottleFuzzy`].
-fn high_alt_freefall_throttle(alt: f64, v_down: f64, up_y: f64, t_auth: f64, moon_mode: bool) -> f64 {
+fn high_alt_freefall_throttle(
+    alt: f64,
+    v_down: f64,
+    up_y: f64,
+    t_auth: f64,
+    moon_mode: bool,
+) -> f64 {
     FreefallThrottleFuzzy {
         alt,
         v_down,
@@ -1402,7 +1387,11 @@ fn physics_pad_vertical_throttle(
         upy_brake: UPY_BRAKE,
     }
     .arbitrate()
-    .max(if contacting { 0.0 } else { DESCEND_MIN_THROTTLE })
+    .max(if contacting {
+        0.0
+    } else {
+        DESCEND_MIN_THROTTLE
+    })
 }
 
 /// Normalize `v` and limit its angle from +Y to `max_tilt` (uses cos test, no acos).
@@ -1433,7 +1422,9 @@ pub(crate) fn saturate(x: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::euclidean_pga::{motor_from_pose, motor_body_up_world, motor_inverse_rotate_vector, attitude_error_body};
+    use crate::euclidean_pga::{
+        attitude_error_body, motor_body_up_world, motor_from_pose, motor_inverse_rotate_vector,
+    };
 
     const DT: f64 = 1.0 / 120.0;
 
@@ -1489,7 +1480,12 @@ mod tests {
         }
     }
 
-    fn cmd_after_spool<F>(ap: &mut LandingAutopilot, state: &RocketState, frames: usize, mut step: F) -> ControlCommand
+    fn cmd_after_spool<F>(
+        ap: &mut LandingAutopilot,
+        state: &RocketState,
+        frames: usize,
+        mut step: F,
+    ) -> ControlCommand
     where
         F: FnMut(&mut LandingAutopilot, &RocketState) -> ControlCommand,
     {
@@ -1555,7 +1551,11 @@ mod tests {
         let mut ap = LandingAutopilot::default();
         ap.enabled = true;
         let cmd = ap.update(&state, DT);
-        assert!(cmd.throttle < 0.05, "expected coast, throttle={}", cmd.throttle);
+        assert!(
+            cmd.throttle < 0.05,
+            "expected coast, throttle={}",
+            cmd.throttle
+        );
     }
 
     #[test]
@@ -1838,7 +1838,11 @@ mod tests {
         let mut ap = LandingAutopilot::default();
         ap.enabled = true;
         let cmd = lander_cmd_after_spool(&mut ap, &state);
-        assert!(cmd.throttle > 0.85, "expected suicide burn, throttle={}", cmd.throttle);
+        assert!(
+            cmd.throttle > 0.85,
+            "expected suicide burn, throttle={}",
+            cmd.throttle
+        );
     }
 
     #[test]
@@ -1871,7 +1875,11 @@ mod tests {
             "inverted vehicle needs strong gimbal, pitch={}",
             cmd.pitch
         );
-        assert!(cmd.throttle > 0.2, "flip needs torque authority, throttle={}", cmd.throttle);
+        assert!(
+            cmd.throttle > 0.2,
+            "flip needs torque authority, throttle={}",
+            cmd.throttle
+        );
     }
 
     #[test]
@@ -1997,12 +2005,18 @@ mod tests {
         let state = RocketState::at_altitude(50.0);
         let dt = 1.0 / 120.0;
         let t0 = ap.finalize_throttle(0.95, dt, &state);
-        assert!(t0 < 0.95, "single frame must not jump to full thrust, t={t0}");
+        assert!(
+            t0 < 0.95,
+            "single frame must not jump to full thrust, t={t0}"
+        );
         let mut t = t0;
         for _ in 0..200 {
             t = ap.finalize_throttle(0.95, dt, &state);
         }
-        assert!((t - 0.95).abs() < 0.02, "should reach target after spool, t={t}");
+        assert!(
+            (t - 0.95).abs() < 0.02,
+            "should reach target after spool, t={t}"
+        );
     }
 
     #[test]

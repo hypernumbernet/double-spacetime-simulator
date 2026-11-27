@@ -4,8 +4,8 @@
 pub mod gpu_simulation;
 pub mod integration;
 pub mod object_input;
-pub mod particle_snapshot;
 pub mod particle_selection_marker;
+pub mod particle_snapshot;
 pub mod pipeline;
 pub mod settings;
 pub mod simulation;
@@ -20,8 +20,11 @@ use crate::object_input::{ObjectInput, SolarSystemBuildError, build_solar_system
 use crate::pipeline::ParticleRenderPipeline;
 use crate::settings::AppSettings;
 use crate::simulation::SimulationManager;
-use crate::ui::{draw_ui, process_pending_particle_delete, process_pending_snapshot_dialog, resolve_trace_particle_for_camera};
 use crate::trace_follow::compute_trace_follow_distance_limits;
+use crate::ui::{
+    draw_ui, process_pending_particle_delete, process_pending_snapshot_dialog,
+    resolve_trace_particle_for_camera,
+};
 use crate::ui_state::{DragOwner, PlacementMode, SimulationType, UiState};
 use ash::vk;
 use std::sync::atomic::{AtomicBool, AtomicU32, AtomicUsize, Ordering};
@@ -674,8 +677,7 @@ impl ApplicationHandler for App {
                 // stall-free scan of the mapped SSBO triggers compaction once enough
                 // dead slots accumulated, and a long unconditional interval sweeps up
                 // stragglers that never reach the threshold.
-                if uses_gpu && simulation_type == SimulationType::DstGalaxy && pending_steps > 0
-                {
+                if uses_gpu && simulation_type == SimulationType::DstGalaxy && pending_steps > 0 {
                     self.gpu_cull_accumulated_steps += pending_steps;
                     self.gpu_forced_compact_steps += pending_steps;
                     if self.gpu_cull_accumulated_steps >= GALAXY_CULL_INTERVAL {
@@ -683,8 +685,7 @@ impl ApplicationHandler for App {
                         let forced = self.gpu_forced_compact_steps >= GALAXY_COMPACT_INTERVAL;
                         let dead = pipeline.count_dead_galaxy_particles();
                         let total = pipeline.gpu_particle_count() as usize;
-                        let threshold_hit =
-                            dead >= GALAXY_COMPACT_MIN_DEAD && dead * 8 >= total;
+                        let threshold_hit = dead >= GALAXY_COMPACT_MIN_DEAD && dead * 8 >= total;
                         if threshold_hit || (forced && dead > 0) {
                             let removed = pipeline.compact_dead_galaxy_particles();
                             if !removed.is_empty() {
@@ -708,13 +709,12 @@ impl ApplicationHandler for App {
                     }
                 }
                 if pending_steps > 0 {
-                    let cull_max_angle = if galaxy_cull_enabled
-                        && simulation_type == SimulationType::DstGalaxy
-                    {
-                        galaxy_cull_max_angle as f32
-                    } else {
-                        0.0
-                    };
+                    let cull_max_angle =
+                        if galaxy_cull_enabled && simulation_type == SimulationType::DstGalaxy {
+                            galaxy_cull_max_angle as f32
+                        } else {
+                            0.0
+                        };
                     pipeline.record_gpu_advance(
                         cb,
                         simulation_type,

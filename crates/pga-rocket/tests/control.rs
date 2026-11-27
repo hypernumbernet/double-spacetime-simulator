@@ -314,10 +314,7 @@ fn exhaust_plume_absent_at_zero_and_grows_with_throttle() {
 
     // At full throttle the plume tip should reach farther below the body than at 30%.
     let min_y = |verts: &[pga_rocket::mesh::Vertex]| {
-        verts
-            .iter()
-            .map(|v| v.pos[1])
-            .fold(f32::INFINITY, f32::min)
+        verts.iter().map(|v| v.pos[1]).fold(f32::INFINITY, f32::min)
     };
     assert!(
         min_y(&v_hi) < min_y(&v_lo) - 1.0,

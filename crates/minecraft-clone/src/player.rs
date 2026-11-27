@@ -4,7 +4,10 @@ use crate::chunk::WORLD_SCALE;
 use crate::input::InputState;
 use crate::world::World;
 use crate::worldgen::{SEA_LEVEL, surface_height};
-use glam::{IVec3, Mat4, Vec3};
+use glam::{
+    IVec3, Mat4, Vec3,
+    camera::rh::{proj::vulkan::perspective, view::look_to_mat4},
+};
 use winit::keyboard::KeyCode;
 
 pub const HALF_W: f32 = 0.3;
@@ -86,11 +89,10 @@ impl Player {
     /// View-projection matrix (right-handed, Vulkan [0,1] depth, Y flipped for framebuffer).
     pub fn view_proj(&self, aspect: f32) -> Mat4 {
         let eye = self.eye();
-        let view = Mat4::look_to_rh(eye, self.forward(), Vec3::Y);
+        let view = look_to_mat4(eye, self.forward(), Vec3::Y);
         // Far plane covers looking down from tall mountains (~150×WORLD_SCALE tall);
-        // D32 depth keeps precision fine at this range.
-        let mut proj = Mat4::perspective_rh(70.0_f32.to_radians(), aspect, 0.1, 2048.0);
-        proj.y_axis.y *= -1.0;
+        // D32 depth keeps precision fine at this range. Vulkan projection is Y-down.
+        let proj = perspective(70.0_f32.to_radians(), aspect, 0.1, 2048.0);
         proj * view
     }
 

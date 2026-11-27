@@ -2,8 +2,7 @@
 
 use dst_math::spacetime::{
     Spacetime, lorentz_boost_matrix_from_velocity, momentum_from_velocity,
-    position_delta_from_momentum, rapidity_from_momentum, rapidity_vector,
-    velocity_from_momentum,
+    position_delta_from_momentum, rapidity_from_momentum, rapidity_vector, velocity_from_momentum,
 };
 use glam::{DMat4, DVec3, DVec4};
 

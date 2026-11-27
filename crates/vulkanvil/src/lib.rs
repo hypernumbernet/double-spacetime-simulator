@@ -17,9 +17,7 @@ pub use buffer::{
     select_depth_format,
 };
 pub use camera::*;
-#[cfg(feature = "egui")]
-pub use spacecraft_markers::{
-    draw_spacecraft_steer_marker, draw_spacecraft_yaw_steer_marker,
-};
 pub use input::InputState;
 pub use shader::create_shader_module;
+#[cfg(feature = "egui")]
+pub use spacecraft_markers::{draw_spacecraft_steer_marker, draw_spacecraft_yaw_steer_marker};

@@ -2,17 +2,17 @@ mod orbit;
 mod spacecraft;
 mod trace;
 
-pub use orbit::{get_closest_perp_unit_to_y, OrbitCamera};
-pub use trace::trace_particle_from_behind;
+pub use orbit::{OrbitCamera, get_closest_perp_unit_to_y};
 pub use spacecraft::{
-    apply_spacecraft_keyboard, apply_spacecraft_roll_pitch, apply_spacecraft_steer_from_offset,
-    apply_spacecraft_wheel_thrust, apply_spacecraft_yaw_from_offset, reset_spacecraft_motion,
-    spacecraft_scene_wheel_allowed, spacecraft_steer_inputs, spacecraft_steer_offset,
-    tick_spacecraft_camera, tick_spacecraft_steer_and_motion,
-    tick_spacecraft_steer_and_motion_from_anchors, toggle_spacecraft_steer_anchor,
     KEYBOARD_STEER_EQUIV_PX, KEYBOARD_STEER_RATE, STEER_RATE_PER_PX, THRUST_ACCEL, THRUST_DURATION,
-    VELOCITY_STEER_THRESHOLD,
+    VELOCITY_STEER_THRESHOLD, apply_spacecraft_keyboard, apply_spacecraft_roll_pitch,
+    apply_spacecraft_steer_from_offset, apply_spacecraft_wheel_thrust,
+    apply_spacecraft_yaw_from_offset, reset_spacecraft_motion, spacecraft_scene_wheel_allowed,
+    spacecraft_steer_inputs, spacecraft_steer_offset, tick_spacecraft_camera,
+    tick_spacecraft_steer_and_motion, tick_spacecraft_steer_and_motion_from_anchors,
+    toggle_spacecraft_steer_anchor,
 };
+pub use trace::trace_particle_from_behind;
 
 use crate::input::InputState;
 use glam::Vec3;

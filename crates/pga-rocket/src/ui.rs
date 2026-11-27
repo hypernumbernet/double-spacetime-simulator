@@ -89,7 +89,11 @@ fn flight_section(ui: &mut egui::Ui, rocket: &RocketState, target_xz: [f32; 2]) 
     kv(ui, "Vel X", format!("{:.2} km/h", v[0] * MS_TO_KMH));
     kv(ui, "Vel Y", format!("{:.2} km/h", v[1] * MS_TO_KMH));
     kv(ui, "Vel Z", format!("{:.2} km/h", v[2] * MS_TO_KMH));
-    kv(ui, "Speed", format!("{:.2} km/h", rocket.speed() * MS_TO_KMH));
+    kv(
+        ui,
+        "Speed",
+        format!("{:.2} km/h", rocket.speed() * MS_TO_KMH),
+    );
     kv(ui, "ω X", format!("{:.3} rad/s", w[0]));
     kv(ui, "ω Y", format!("{:.3} rad/s", w[1]));
     kv(ui, "ω Z", format!("{:.3} rad/s", w[2]));
@@ -141,7 +145,11 @@ fn control_section(
         format!("{:.1}°/{:.1}°", gp.to_degrees(), gy.to_degrees()),
     );
     kv(ui, "Thrust", format!("{:.0} N", thrust));
-    kv(ui, "Max thrust", format!("{:.0} N", rocket.params.max_thrust));
+    kv(
+        ui,
+        "Max thrust",
+        format!("{:.0} N", rocket.params.max_thrust),
+    );
     kv(ui, "T/W", format!("{:.2}", tw));
     kv(ui, "Eng τ", fmt_xyz0(eng.torque));
     kv(ui, "RCS τ_y", format!("{:.0} N·m", rcs.torque[1]));
@@ -173,13 +181,7 @@ fn vehicle_section(ui: &mut egui::Ui, rocket: &RocketState) {
     kv(ui, "Slip eps", format!("{:.3} m/s", p.friction_slip_eps));
 }
 
-fn camera_section(
-    ui: &mut egui::Ui,
-    fps: f32,
-    cam_yaw: f32,
-    cam_pitch: f32,
-    cam_distance: f32,
-) {
+fn camera_section(ui: &mut egui::Ui, fps: f32, cam_yaw: f32, cam_pitch: f32, cam_distance: f32) {
     section(ui, "Camera");
     kv(ui, "FPS", format!("{:.0}", fps));
     kv(ui, "Yaw", format!("{:.2} rad", cam_yaw));

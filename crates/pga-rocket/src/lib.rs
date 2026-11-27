@@ -14,18 +14,17 @@ pub mod target_landing;
 /// Procedural ground albedo generators (pure CPU; Vulkan upload is binary-only path).
 pub mod texture;
 
-pub use control::{
-    ControlMapper, KeySnapshot, THROTTLE_LATCH_RAMP_S, ThrottleLatch, map_keys,
-};
-pub use landing::LandingAutopilot;
+pub use control::{ControlMapper, KeySnapshot, THROTTLE_LATCH_RAMP_S, ThrottleLatch, map_keys};
 pub use fuzzy::{LONG_CRUISE_ALT_M as LONG_RANGE_CRUISE_ALT_M, LONG_RANGE_M};
-pub use target_landing::{
-    inside_target_pad, TargetLandingAutopilot, TargetPhase, CLIMB_ALT_M, HANDOFF_ALT_M,
-    TARGET_PAD_HALF_M,
-};
+pub use landing::LandingAutopilot;
 pub use landing::TARGET_SUCCESS_HALF_M;
 pub use sim::{
-    BodyWrench, ContactKind, ContactProbe, ControlCommand, RocketParams, RocketState, ThrusterSample,
-    body_wrench_at, cross, engine_wrench, gimbal_rotor, ground_contact_probes, propulsive_wrench,
-    rcs_wrench, roll_thrusters, rotate_vector_by_rotor, step_rocket, thrust_dir_body,
+    BodyWrench, ContactKind, ContactProbe, ControlCommand, RocketParams, RocketState,
+    ThrusterSample, body_wrench_at, cross, engine_wrench, gimbal_rotor, ground_contact_probes,
+    propulsive_wrench, rcs_wrench, roll_thrusters, rotate_vector_by_rotor, step_rocket,
+    thrust_dir_body,
+};
+pub use target_landing::{
+    CLIMB_ALT_M, HANDOFF_ALT_M, TARGET_PAD_HALF_M, TargetLandingAutopilot, TargetPhase,
+    inside_target_pad,
 };
